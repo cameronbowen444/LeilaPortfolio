@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectCategory {
+  PRODUCTION
+  USU_MARKETING
+  PERSONAL
+  MOTION_GRAPHICS
+}
+
+model Project {
+  id            String          @id @default(cuid())
+
+  title         String
+  slug          String          @unique
+  category      ProjectCategory
+
+  year          String?
+  description   String
+
+  coverImage    String?
+
+  oneSheets     String[]
+  outdoor       String[]
+  international String[]
+  gallery       String[]
+
+  sortOrder     Int             @default(0)
+  published     Boolean         @default(true)
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+
+  company     String
+  role        String
+  location    String?
+  period      String
+  description String
+
+  highlights  String[]
+
+  current     Boolean  @default(false)
+  sortOrder   Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
