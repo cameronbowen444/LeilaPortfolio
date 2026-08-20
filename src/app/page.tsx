@@ -12,6 +12,10 @@ import { prisma } from "@/lib/prisma";
 export const dynamic =
   "force-dynamic";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://leila-portfolio-eta.vercel.app";
+
 export default async function Home() {
   const [
     projects,
@@ -24,10 +28,12 @@ export default async function Home() {
 
       orderBy: [
         {
-          sortOrder: "asc",
+          sortOrder:
+            "asc",
         },
         {
-          createdAt: "desc",
+          createdAt:
+            "desc",
         },
       ],
     }),
@@ -35,38 +41,106 @@ export default async function Home() {
     prisma.experience.findMany({
       orderBy: [
         {
-          sortOrder: "asc",
+          sortOrder:
+            "asc",
         },
         {
-          createdAt: "desc",
+          createdAt:
+            "desc",
         },
       ],
     }),
   ]);
 
+  const structuredData = {
+    "@context":
+      "https://schema.org",
+
+    "@type":
+      "Person",
+
+    name:
+      "Leila Mirfakhraei",
+
+    url:
+      siteUrl,
+
+    image:
+      `${siteUrl}/logo.png`,
+
+    jobTitle:
+      "Graphic Designer & Key Art Designer",
+
+    description:
+      "Graphic designer specializing in entertainment key art, theatrical campaigns, movie poster design, motion graphics, marketing, and visual storytelling.",
+
+    knowsAbout: [
+      "Graphic Design",
+      "Key Art",
+      "Entertainment Design",
+      "Movie Poster Design",
+      "Theatrical Campaigns",
+      "Motion Graphics",
+      "Marketing Design",
+      "Visual Storytelling",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe InDesign",
+      "Adobe After Effects",
+      "Adobe Premiere Pro",
+      "Figma",
+      "Blender",
+      "Cinema 4D",
+    ],
+
+    sameAs: [],
+  };
+
   return (
-    <main className="min-h-screen bg-[#121212] text-[#F4EFE6]">
-      <Navbar />
+    <>
+      {/* =====================================
+          STRUCTURED DATA / SEO
+      ===================================== */}
 
-      <Hero />
-
-      <About />
-
-      <Projects
-        projects={projects}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html:
+            JSON.stringify(
+              structuredData
+            ),
+        }}
       />
 
-      <Experience
-        experience={
-          experience
-        }
-      />
+      {/* =====================================
+          SITE
+      ===================================== */}
 
-      <Technologies />
+      <main className="min-h-screen bg-[#121212] text-[#F4EFE6]">
+        <Navbar />
 
-      <Contact />
+        <Hero />
 
-      <Footer />
-    </main>
+        <About />
+
+        <Projects
+          projects={
+            projects
+          }
+        />
+
+        <Experience
+          experience={
+            experience
+          }
+        />
+
+        <Technologies />
+
+        <Contact />
+
+        <Footer />
+      </main>
+    </>
   );
 }
