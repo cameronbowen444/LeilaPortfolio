@@ -19,6 +19,8 @@ const navLinks = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] =
+    useState<string | null>(null);
 
   /* =====================================
      SCROLL STATE
@@ -39,6 +41,102 @@ export default function Navbar() {
       window.removeEventListener(
         "scroll",
         handleScroll
+      );
+    };
+  }, []);
+
+  /* =====================================
+     ACTIVE SECTION
+  ===================================== */
+
+  useEffect(() => {
+    const sectionIds = [
+      "about",
+      "projects",
+      "experience",
+      "technologies",
+      "contact",
+    ];
+
+    const updateActiveSection = () => {
+      const scrollPosition =
+        window.scrollY +
+        Math.min(
+          window.innerHeight * 0.34,
+          280
+        );
+
+      let currentSection:
+        | string
+        | null = null;
+
+      for (const id of sectionIds) {
+        const section =
+          document.getElementById(id);
+
+        if (!section) {
+          continue;
+        }
+
+        const sectionTop =
+          section.offsetTop;
+
+        if (
+          scrollPosition >=
+          sectionTop
+        ) {
+          currentSection =
+            id;
+        }
+      }
+
+      /*
+       * Keep the navbar unselected while the
+       * visitor is still in the hero.
+       */
+      const aboutSection =
+        document.getElementById(
+          "about"
+        );
+
+      if (
+        aboutSection &&
+        scrollPosition <
+          aboutSection.offsetTop
+      ) {
+        currentSection =
+          null;
+      }
+
+      setActiveSection(
+        currentSection
+      );
+    };
+
+    updateActiveSection();
+
+    window.addEventListener(
+      "scroll",
+      updateActiveSection,
+      {
+        passive: true,
+      }
+    );
+
+    window.addEventListener(
+      "resize",
+      updateActiveSection
+    );
+
+    return () => {
+      window.removeEventListener(
+        "scroll",
+        updateActiveSection
+      );
+
+      window.removeEventListener(
+        "resize",
+        updateActiveSection
       );
     };
   }, []);
@@ -194,21 +292,54 @@ export default function Navbar() {
           ===================================== */}
 
           <div className="hidden items-center gap-8 lg:flex xl:gap-10">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="group relative flex h-10 items-center"
-              >
-                <span className="relative text-[10px] uppercase tracking-[0.27em] text-[#F4EFE6]/65 transition-colors duration-300 group-hover:text-[#F4EFE6] xl:text-[11px]">
-                  {link.name}
-                </span>
+            {navLinks.map(
+              (link) => {
+                const sectionId =
+                  link.href.slice(1);
 
-                {/* dot */}
+                const active =
+                  activeSection ===
+                  sectionId;
 
-                <span className="absolute -bottom-[1px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 scale-0 rounded-full bg-[#D4AF37] opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
-              </Link>
-            ))}
+                return (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    onClick={() =>
+                      setActiveSection(
+                        sectionId
+                      )
+                    }
+                    aria-current={
+                      active
+                        ? "location"
+                        : undefined
+                    }
+                    className="group relative flex h-10 items-center"
+                  >
+                    <span
+                      className={`relative text-[10px] uppercase tracking-[0.27em] transition-colors duration-300 xl:text-[11px] ${
+                        active
+                          ? "text-[#D4AF37]"
+                          : "text-[#F4EFE6]/65 group-hover:text-[#F4EFE6]"
+                      }`}
+                    >
+                      {link.name}
+                    </span>
+
+                    {/* active / hover dot */}
+
+                    <span
+                      className={`absolute -bottom-[1px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#D4AF37] transition-all duration-300 ${
+                        active
+                          ? "scale-100 opacity-100 shadow-[0_0_8px_rgba(212,175,55,0.75)]"
+                          : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100"
+                      }`}
+                    />
+                  </Link>
+                );
+              }
+            )}
 
             {/* DIVIDER */}
 
@@ -218,11 +349,41 @@ export default function Navbar() {
 
             <Link
               href="#contact"
-              className="group relative flex min-w-[145px] items-center justify-center overflow-hidden border border-[#D4AF37]/40 bg-black/10 px-5 py-[13px] backdrop-blur-sm transition-colors duration-300 hover:border-[#D4AF37]"
+              onClick={() =>
+                setActiveSection(
+                  "contact"
+                )
+              }
+              aria-current={
+                activeSection ===
+                "contact"
+                  ? "location"
+                  : undefined
+              }
+              className={`group relative flex min-w-[145px] items-center justify-center overflow-hidden border px-5 py-[13px] backdrop-blur-sm transition-all duration-300 ${
+                activeSection ===
+                "contact"
+                  ? "border-[#D4AF37] bg-[#D4AF37]"
+                  : "border-[#D4AF37]/40 bg-black/10 hover:border-[#D4AF37]"
+              }`}
             >
-              <span className="absolute inset-0 origin-left scale-x-0 bg-[#D4AF37] transition-transform duration-500 ease-out group-hover:scale-x-100" />
+              <span
+                className={`absolute inset-0 origin-left bg-[#D4AF37] transition-transform duration-500 ease-out ${
+                  activeSection ===
+                  "contact"
+                    ? "scale-x-100"
+                    : "scale-x-0 group-hover:scale-x-100"
+                }`}
+              />
 
-              <span className="relative flex items-center gap-3 text-[9px] uppercase tracking-[0.3em] text-[#D4AF37] transition-colors duration-300 group-hover:text-[#101010]">
+              <span
+                className={`relative flex items-center gap-3 text-[9px] uppercase tracking-[0.3em] transition-colors duration-300 ${
+                  activeSection ===
+                  "contact"
+                    ? "text-[#101010]"
+                    : "text-[#D4AF37] group-hover:text-[#101010]"
+                }`}
+              >
                 Let&apos;s Talk
 
                 <FiArrowUpRight className="text-sm transition-transform duration-300 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]" />
@@ -406,27 +567,60 @@ export default function Navbar() {
                           href={
                             link.href
                           }
-                          onClick={() =>
+                          onClick={() => {
+                            setActiveSection(
+                              link.href.slice(
+                                1
+                              )
+                            );
+
                             setMenuOpen(
                               false
-                            )
+                            );
+                          }}
+                          aria-current={
+                            activeSection ===
+                            link.href.slice(1)
+                              ? "location"
+                              : undefined
                           }
                           className="group relative flex items-center justify-between border-b border-[#F4EFE6]/[0.07] py-5"
                         >
                           <div className="flex items-baseline gap-4">
-                            <span className="text-[8px] tracking-[0.18em] text-[#D4AF37]/45">
+                            <span
+                              className={`text-[8px] tracking-[0.18em] transition-colors ${
+                                activeSection ===
+                                link.href.slice(1)
+                                  ? "text-[#D4AF37]"
+                                  : "text-[#D4AF37]/45"
+                              }`}
+                            >
                               0
                               {index + 1}
                             </span>
 
-                            <span className="font-serif text-[34px] italic leading-none text-[#F4EFE6] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#D4AF37]">
+                            <span
+                              className={`font-serif text-[34px] italic leading-none transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#D4AF37] ${
+                                activeSection ===
+                                link.href.slice(1)
+                                  ? "translate-x-1 text-[#D4AF37]"
+                                  : "text-[#F4EFE6]"
+                              }`}
+                            >
                               {
                                 link.name
                               }
                             </span>
                           </div>
 
-                          <FiArrowUpRight className="text-lg text-[#7E2A5A] transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#D4AF37]" />
+                          <FiArrowUpRight
+                            className={`text-lg transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#D4AF37] ${
+                              activeSection ===
+                              link.href.slice(1)
+                                ? "text-[#D4AF37]"
+                                : "text-[#7E2A5A]"
+                            }`}
+                          />
                         </Link>
                       </motion.div>
                     )
@@ -453,9 +647,13 @@ export default function Navbar() {
                 >
                   <Link
                     href="#contact"
-                    onClick={() =>
-                      setMenuOpen(false)
-                    }
+                    onClick={() => {
+                      setActiveSection(
+                        "contact"
+                      );
+
+                      setMenuOpen(false);
+                    }}
                     className="group relative flex w-full items-center justify-between overflow-hidden border border-[#D4AF37]/40 bg-[#4A111C]/30 px-6 py-5"
                   >
                     <span className="absolute inset-0 origin-left scale-x-0 bg-[#D4AF37] transition-transform duration-500 group-hover:scale-x-100" />

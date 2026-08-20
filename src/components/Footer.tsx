@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import {
   FiMail,
-  FiInstagram,
   FiLinkedin,
   FiArrowUpRight,
 } from "react-icons/fi";
@@ -192,7 +191,7 @@ export default function Footer() {
               {/* EMAIL */}
 
               <a
-                href="mailto:hello@leiladesign.com"
+                href="mailto:leilamirfakhraei@gmail.com"
                 className="group flex max-w-full items-center gap-4"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-[#5B1E3A]/10 text-[#D4AF37] transition-all duration-300 group-hover:border-[#D4AF37] group-hover:bg-[#5B1E3A]/30">
@@ -205,30 +204,7 @@ export default function Footer() {
                   </p>
 
                   <p className="mt-1 break-all text-sm text-[#F4EFE6]/65 transition-colors group-hover:text-[#F4EFE6] sm:break-normal">
-                    hello@leiladesign.com
-                  </p>
-                </div>
-              </a>
-
-              {/* INSTAGRAM */}
-
-              <a
-                href="#"
-                className="group flex items-center gap-4"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-[#5B1E3A]/10 text-[#D4AF37] transition-all duration-300 group-hover:border-[#D4AF37] group-hover:bg-[#5B1E3A]/30">
-                  <FiInstagram />
-                </div>
-
-                <div>
-                  <p className="text-[8px] uppercase tracking-[0.3em] text-[#725563]">
-                    Instagram
-                  </p>
-
-                  <p className="mt-1 flex items-center gap-2 text-sm text-[#F4EFE6]/65 transition-colors group-hover:text-[#F4EFE6]">
-                    @leiladesign
-
-                    <FiArrowUpRight className="shrink-0 text-xs" />
+                    leilamirfakhraei@gmail.com
                   </p>
                 </div>
               </a>
@@ -236,7 +212,8 @@ export default function Footer() {
               {/* LINKEDIN */}
 
               <a
-                href="#"
+                href="https://www.linkedin.com/in/leila-mirfakhraei-383a46159/"
+                target="_blank"
                 className="group flex items-center gap-4"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-[#5B1E3A]/10 text-[#D4AF37] transition-all duration-300 group-hover:border-[#D4AF37] group-hover:bg-[#5B1E3A]/30">

@@ -4,11 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { FiArrowDownRight } from "react-icons/fi";
 
-const titles = [
-  "Graphic Designer",
-  "Key Art Designer",
-  "Visual Storyteller",
-];
+const titles = ["Graphic Designer", "Key Art Designer", "Visual Storyteller"];
 
 const filmImages = [
   "/images/gt3.jpg",
@@ -37,32 +33,21 @@ export default function Hero() {
       () => {
         if (!deleting) {
           if (displayedText.length < currentTitle.length) {
-            setDisplayedText(
-              currentTitle.slice(0, displayedText.length + 1)
-            );
+            setDisplayedText(currentTitle.slice(0, displayedText.length + 1));
           } else {
             setDeleting(true);
           }
         } else {
           if (displayedText.length > 0) {
-            setDisplayedText(
-              currentTitle.slice(0, displayedText.length - 1)
-            );
+            setDisplayedText(currentTitle.slice(0, displayedText.length - 1));
           } else {
             setDeleting(false);
 
-            setTitleIndex(
-              (previous) =>
-                (previous + 1) % titles.length
-            );
+            setTitleIndex((previous) => (previous + 1) % titles.length);
           }
         }
       },
-      deleting
-        ? 40
-        : displayedText.length === currentTitle.length
-          ? 1200
-          : 75
+      deleting ? 40 : displayedText.length === currentTitle.length ? 1200 : 75,
     );
 
     return () => clearTimeout(timeout);
@@ -144,7 +129,6 @@ export default function Hero() {
             className="font-serif text-[54px] leading-[0.9] sm:text-[64px] md:text-[72px] lg:text-[74px] xl:text-[82px]"
           >
             Designing for
-
             <span className="mt-1 block italic text-[#F4EFE6]">
               the big screen.
             </span>
@@ -206,7 +190,6 @@ export default function Hero() {
 
               <span className="relative flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.32em] text-[#E7C764] transition-colors duration-300 group-hover:text-[#121212]">
                 View Projects
-
                 <FiArrowDownRight className="text-lg" />
               </span>
             </a>
@@ -214,11 +197,12 @@ export default function Hero() {
             {/* SECONDARY */}
 
             <a
-              href="#contact"
+              href="/resume.pdf"
+              download="Leila-Mirfakhraei-Resume.pdf"
               className="group relative min-w-[210px] overflow-hidden border border-[#F4EFE6]/25 bg-black/20 px-8 py-[18px] text-center backdrop-blur-[2px] transition-all duration-300 hover:border-[#D4AF37]/55 hover:bg-black/35"
             >
               <span className="relative text-[10px] uppercase tracking-[0.32em] text-[#F4EFE6]/75 transition-colors duration-300 group-hover:text-[#D4AF37]">
-                Start a Project
+                Download Resume
               </span>
 
               <span className="absolute bottom-0 left-1/2 h-px w-0 -translate-x-1/2 bg-[#D4AF37] transition-all duration-300 group-hover:w-[75%]" />
@@ -273,14 +257,9 @@ export default function Hero() {
               }}
               className="absolute left-1/2 top-0 w-full -translate-x-1/2"
             >
-              {[...filmImages, ...filmImages].map(
-                (image, index) => (
-                  <DesktopFilmFrame
-                    key={`${image}-${index}`}
-                    image={image}
-                  />
-                )
-              )}
+              {[...filmImages, ...filmImages].map((image, index) => (
+                <DesktopFilmFrame key={`${image}-${index}`} image={image} />
+              ))}
             </motion.div>
           </div>
         </motion.div>
@@ -326,14 +305,9 @@ export default function Hero() {
               }}
               className="absolute left-0 top-1/2 flex -translate-y-1/2"
             >
-              {[...filmImages, ...filmImages].map(
-                (image, index) => (
-                  <MobileFilmFrame
-                    key={`${image}-${index}`}
-                    image={image}
-                  />
-                )
-              )}
+              {[...filmImages, ...filmImages].map((image, index) => (
+                <MobileFilmFrame key={`${image}-${index}`} image={image} />
+              ))}
             </motion.div>
           </div>
         </motion.div>
@@ -346,11 +320,7 @@ export default function Hero() {
    DESKTOP VERTICAL FILM
 ===================================== */
 
-function DesktopFilmFrame({
-  image,
-}: {
-  image: string;
-}) {
+function DesktopFilmFrame({ image }: { image: string }) {
   return (
     <div className="relative flex h-[280px] w-full bg-[#080808]/95 shadow-[0_8px_30px_rgba(0,0,0,.45)]">
       {/* LEFT FILM EDGE */}
@@ -406,11 +376,7 @@ function DesktopFilmFrame({
    MOBILE HORIZONTAL FILM
 ===================================== */
 
-function MobileFilmFrame({
-  image,
-}: {
-  image: string;
-}) {
+function MobileFilmFrame({ image }: { image: string }) {
   return (
     <div className="relative h-[245px] w-[280px] shrink-0 bg-[#080808]/95 px-3 py-7 sm:h-[280px] sm:w-[330px] md:h-[300px] md:w-[360px]">
       {/* TOP SPROCKETS */}
@@ -419,10 +385,7 @@ function MobileFilmFrame({
         {Array.from({
           length: 9,
         }).map((_, index) => (
-          <span
-            key={index}
-            className="h-2 w-4 rounded-[2px] bg-[#E9E5DD]/85"
-          />
+          <span key={index} className="h-2 w-4 rounded-[2px] bg-[#E9E5DD]/85" />
         ))}
       </div>
 
@@ -446,10 +409,7 @@ function MobileFilmFrame({
         {Array.from({
           length: 9,
         }).map((_, index) => (
-          <span
-            key={index}
-            className="h-2 w-4 rounded-[2px] bg-[#E9E5DD]/85"
-          />
+          <span key={index} className="h-2 w-4 rounded-[2px] bg-[#E9E5DD]/85" />
         ))}
       </div>
     </div>
