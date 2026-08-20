@@ -5,7 +5,7 @@ import type {
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://leila-portfolio-eta.vercel.app";
+    "https://leilamirfakhraei.com";
 
   return [
     {

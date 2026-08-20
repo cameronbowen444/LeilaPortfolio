@@ -15,7 +15,7 @@ import "./globals.css";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://leila-portfolio-eta.vercel.app";
+  "https://leilamirfakhraei.com";
 
 /* =====================================
    SEO METADATA
