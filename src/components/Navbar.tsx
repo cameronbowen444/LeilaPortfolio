@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
-import { FiMenu, FiX } from "react-icons/fi";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  FiArrowUpRight,
+  FiMenu,
+  FiX,
+} from "react-icons/fi";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -14,202 +18,468 @@ const navLinks = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  /* =====================================
+     SCROLL STATE
+  ===================================== */
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 35);
+    };
+
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+    };
+  }, []);
+
+  /* =====================================
+     LOCK BODY WHEN MOBILE MENU IS OPEN
+  ===================================== */
+
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
   return (
     <>
+      {/* =====================================
+          NAVBAR
+      ===================================== */}
+
       <motion.header
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7 }}
-        className="fixed left-0 top-0 z-50 w-full border-b border-[#D4AF37]/30 bg-[#121212]/90 backdrop-blur-xl"
+        initial={{
+          y: -30,
+          opacity: 0,
+        }}
+        animate={{
+          y: 0,
+          opacity: 1,
+        }}
+        transition={{
+          duration: 0.7,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+        className={`
+          fixed left-0 top-0 z-50 w-full
+          transition-all duration-500
+          ${
+            scrolled
+              ? "border-b border-[#D4AF37]/15 bg-[#0D0D0D]/88 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-2xl"
+              : "border-b border-[#D4AF37]/20 bg-gradient-to-b from-black/45 via-black/15 to-transparent"
+          }
+        `}
       >
-        {/* Cinematic background glow */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(126,42,90,0.18),transparent_28%),radial-gradient(circle_at_85%_0%,rgba(212,175,55,0.08),transparent_25%)]" />
+        {/* =====================================
+            SUBTLE NAV LIGHTING
+        ===================================== */}
 
-        <nav className="relative mx-auto flex h-24 max-w-[1450px] items-center justify-between px-5 sm:px-8 lg:px-12">
-          {/* Logo / Identity */}
-          <Link href="/" className="group flex items-center gap-4">
-            <div className="relative flex h-13 w-13 items-center justify-center">
-              <div className="absolute inset-0 rotate-45 border border-[#D4AF37]/40 transition-all duration-500 group-hover:rotate-0 group-hover:border-[#D4AF37]" />
+        <div
+          className={`
+            pointer-events-none absolute inset-0
+            transition-opacity duration-500
+            ${
+              scrolled
+                ? "opacity-100"
+                : "opacity-30"
+            }
+          `}
+        >
+          <div className="absolute -left-20 top-[-100px] h-[220px] w-[320px] rounded-full bg-[#7E2A5A]/10 blur-[100px]" />
 
-              <div className="absolute inset-[5px] rotate-45 border border-[#7E2A5A]/50 transition-all duration-500 group-hover:rotate-0" />
+          <div className="absolute right-[12%] top-[-100px] h-[190px] w-[260px] rounded-full bg-[#D4AF37]/5 blur-[100px]" />
+        </div>
 
-              <span className="relative font-serif text-xl italic text-[#F4EFE6]">
+        {/* =====================================
+            NAV CONTENT
+        ===================================== */}
+
+        <nav
+          className={`
+            relative mx-auto flex max-w-[1500px] items-center justify-between
+            px-4 transition-all duration-500
+            sm:px-6 lg:px-10 xl:px-12
+            ${
+              scrolled
+                ? "h-[76px]"
+                : "h-[92px]"
+            }
+          `}
+        >
+          {/* =====================================
+              BRAND
+          ===================================== */}
+
+          <Link
+            href="/"
+            className="group flex min-w-0 items-center gap-3 sm:gap-4"
+          >
+            {/* MONOGRAM */}
+
+            <div
+              className={`
+                relative flex shrink-0 items-center justify-center
+                transition-all duration-500
+                ${
+                  scrolled
+                    ? "h-[44px] w-[44px]"
+                    : "h-[50px] w-[50px] sm:h-[54px] sm:w-[54px]"
+                }
+              `}
+            >
+              {/* outside diamond */}
+
+              <div className="absolute inset-[3px] rotate-45 border border-[#D4AF37]/45 transition-all duration-500 group-hover:rotate-[135deg] group-hover:border-[#D4AF37]" />
+
+              {/* inside diamond */}
+
+              <div className="absolute inset-[8px] rotate-45 border border-[#7E2A5A]/55 transition-all duration-500 group-hover:-rotate-45 group-hover:border-[#A64A79]" />
+
+              {/* glow */}
+
+              <div className="absolute inset-2 rounded-full bg-[#D4AF37]/0 blur-xl transition-all duration-500 group-hover:bg-[#D4AF37]/10" />
+
+              <span className="relative z-10 font-serif text-lg italic tracking-[-0.04em] text-[#F4EFE6] sm:text-xl">
                 LM
               </span>
             </div>
 
-            <div className="hidden sm:block">
-              <p className="font-serif text-[15px] tracking-[0.22em] text-[#F4EFE6]">
-                LAYLA MIRFAKHRAEI
+            {/* BRAND TEXT - STAYS ON MOBILE */}
+
+            <div className="min-w-0">
+              <p
+                className={`
+                  truncate font-serif uppercase text-[#F4EFE6]
+                  transition-all duration-500
+                  ${
+                    scrolled
+                      ? "text-[11px] tracking-[0.17em] sm:text-[13px] sm:tracking-[0.2em]"
+                      : "text-[11px] tracking-[0.17em] sm:text-[14px] sm:tracking-[0.22em]"
+                  }
+                `}
+              >
+                Leila Mirfakhraei
               </p>
 
-              <div className="mt-1 flex items-center gap-2">
-                <span className="h-px w-5 bg-[#D4AF37]" />
+              <div className="mt-[5px] flex items-center gap-2">
+                <span className="h-px w-4 shrink-0 bg-[#D4AF37] sm:w-5" />
 
-                <p className="text-[9px] uppercase tracking-[0.42em] text-[#D4AF37]">
+                <span className="truncate text-[7px] uppercase tracking-[0.25em] text-[#D4AF37] sm:text-[8px] sm:tracking-[0.38em]">
                   Graphic Designer
-                </p>
+                </span>
               </div>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden items-center gap-10 lg:flex">
+          {/* =====================================
+              DESKTOP NAV
+          ===================================== */}
+
+          <div className="hidden items-center gap-8 lg:flex xl:gap-10">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="group relative py-2"
+                className="group relative flex h-10 items-center"
               >
-                <span className="text-[11px] uppercase tracking-[0.28em] text-[#F4EFE6]/70 transition-colors duration-300 group-hover:text-[#D4AF37]">
+                <span className="relative text-[10px] uppercase tracking-[0.27em] text-[#F4EFE6]/65 transition-colors duration-300 group-hover:text-[#F4EFE6] xl:text-[11px]">
                   {link.name}
                 </span>
 
-                <span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-[#7E2A5A] via-[#D4AF37] to-[#A45728] transition-all duration-500 group-hover:w-full" />
+                {/* dot */}
+
+                <span className="absolute -bottom-[1px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 scale-0 rounded-full bg-[#D4AF37] opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
               </Link>
             ))}
 
-            {/* Contact CTA */}
+            {/* DIVIDER */}
+
+            <span className="h-5 w-px bg-[#F4EFE6]/10" />
+
+            {/* CONTACT */}
+
             <Link
               href="#contact"
-              className="group relative overflow-hidden border border-[#D4AF37]/50 px-6 py-3"
+              className="group relative flex min-w-[145px] items-center justify-center overflow-hidden border border-[#D4AF37]/40 bg-black/10 px-5 py-[13px] backdrop-blur-sm transition-colors duration-300 hover:border-[#D4AF37]"
             >
-              <span className="absolute inset-0 translate-y-full bg-[#D4AF37] transition-transform duration-300 group-hover:translate-y-0" />
+              <span className="absolute inset-0 origin-left scale-x-0 bg-[#D4AF37] transition-transform duration-500 ease-out group-hover:scale-x-100" />
 
-              <span className="relative text-[10px] uppercase tracking-[0.3em] text-[#D4AF37] transition-colors duration-300 group-hover:text-[#121212]">
+              <span className="relative flex items-center gap-3 text-[9px] uppercase tracking-[0.3em] text-[#D4AF37] transition-colors duration-300 group-hover:text-[#101010]">
                 Let&apos;s Talk
+
+                <FiArrowUpRight className="text-sm transition-transform duration-300 group-hover:translate-x-[2px] group-hover:-translate-y-[2px]" />
               </span>
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* =====================================
+              MOBILE MENU BUTTON
+          ===================================== */}
+
           <button
-            onClick={() => setMenuOpen(true)}
+            type="button"
+            onClick={() =>
+              setMenuOpen(true)
+            }
             aria-label="Open navigation menu"
-            className="group flex h-11 w-11 items-center justify-center border border-[#D4AF37]/40 bg-[#5B1E3A]/10 text-xl text-[#F4EFE6] transition-all hover:border-[#D4AF37] hover:bg-[#5B1E3A]/30 lg:hidden"
+            className="group relative ml-3 flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden border border-[#D4AF37]/30 bg-black/15 backdrop-blur-md transition-all duration-300 hover:border-[#D4AF37]/70 lg:hidden"
           >
-            <FiMenu className="transition-transform group-hover:scale-110" />
+            <span className="absolute inset-0 translate-y-full bg-[#7E2A5A]/25 transition-transform duration-300 group-hover:translate-y-0" />
+
+            <FiMenu className="relative z-10 text-xl text-[#F4EFE6]" />
           </button>
         </nav>
 
-        {/* Bottom gold accent */}
-        <div className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#D4AF37]/70 to-transparent" />
+        {/* =====================================
+            BOTTOM CINEMA LINE
+        ===================================== */}
+
+        <div
+          className={`
+            absolute bottom-0 left-1/2 h-px -translate-x-1/2
+            bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent
+            transition-all duration-500
+            ${
+              scrolled
+                ? "w-[72%] opacity-35"
+                : "w-full opacity-55"
+            }
+          `}
+        />
       </motion.header>
 
-      {/* Mobile Navigation */}
+      {/* =====================================
+          MOBILE NAVIGATION
+      ===================================== */}
+
       <AnimatePresence>
         {menuOpen && (
           <>
-            {/* Dark Backdrop */}
+            {/* BACKDROP */}
+
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed inset-0 z-[60] bg-[#121212]/80 backdrop-blur-md lg:hidden"
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
+              transition={{
+                duration: 0.3,
+              }}
+              onClick={() =>
+                setMenuOpen(false)
+              }
+              className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-[6px] lg:hidden"
             />
 
-            {/* Sidebar */}
+            {/* DRAWER */}
+
             <motion.aside
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              initial={{
+                x: "100%",
+              }}
+              animate={{
+                x: 0,
+              }}
+              exit={{
+                x: "100%",
+              }}
               transition={{
-                duration: 0.5,
+                duration: 0.55,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="fixed right-0 top-0 z-[70] flex h-screen w-[88%] max-w-[420px] flex-col overflow-hidden border-l border-[#D4AF37]/30 bg-[#121212] px-7 py-7 lg:hidden"
+              className="fixed right-0 top-0 z-[70] flex h-[100dvh] w-[90%] max-w-[410px] flex-col overflow-hidden border-l border-[#D4AF37]/20 bg-[#0D0D0D]/95 backdrop-blur-2xl lg:hidden"
             >
-              {/* Background Atmosphere */}
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(126,42,90,0.35),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(164,87,40,0.15),transparent_35%)]" />
+              {/* ATMOSPHERE */}
 
-              <div className="relative flex h-full flex-col">
-                {/* Sidebar Header */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-serif text-xl tracking-[0.12em] text-[#F4EFE6]">
-                      LAYLA
-                    </p>
+              <div className="pointer-events-none absolute inset-0">
+                <div className="absolute -right-32 -top-28 h-[340px] w-[340px] rounded-full bg-[#7E2A5A]/25 blur-[120px]" />
 
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="h-px w-5 bg-[#D4AF37]" />
+                <div className="absolute -bottom-32 left-[-140px] h-[320px] w-[320px] rounded-full bg-[#D4AF37]/8 blur-[120px]" />
 
-                      <p className="text-[9px] uppercase tracking-[0.4em] text-[#D4AF37]">
-                        Graphic Designer
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[length:100%_8px] opacity-20" />
+              </div>
+
+              <div className="relative z-10 flex h-full flex-col px-6 pb-7 pt-6">
+                {/* =====================================
+                    MOBILE HEADER
+                ===================================== */}
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* little LM */}
+
+                    <div className="relative flex h-11 w-11 items-center justify-center">
+                      <div className="absolute inset-[3px] rotate-45 border border-[#D4AF37]/45" />
+
+                      <span className="relative font-serif text-base italic text-[#F4EFE6]">
+                        LM
+                      </span>
+                    </div>
+
+                    <div>
+                      <p className="font-serif text-[13px] uppercase tracking-[0.18em] text-[#F4EFE6]">
+                        Leila Mirfakhraei
                       </p>
+
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <span className="h-px w-4 bg-[#D4AF37]" />
+
+                        <p className="text-[7px] uppercase tracking-[0.3em] text-[#D4AF37]">
+                          Graphic Designer
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   <button
-                    onClick={() => setMenuOpen(false)}
+                    type="button"
+                    onClick={() =>
+                      setMenuOpen(false)
+                    }
                     aria-label="Close navigation menu"
-                    className="flex h-11 w-11 items-center justify-center border border-[#D4AF37]/40 text-xl text-[#F4EFE6] transition hover:border-[#D4AF37] hover:bg-[#5B1E3A]/30"
+                    className="group flex h-11 w-11 items-center justify-center border border-[#F4EFE6]/15 bg-white/[0.02] text-xl text-[#F4EFE6] transition-all duration-300 hover:border-[#D4AF37]/60 hover:text-[#D4AF37]"
                   >
-                    <FiX />
+                    <FiX className="transition-transform duration-300 group-hover:rotate-90" />
                   </button>
                 </div>
 
-                {/* Cinema Divider */}
-                <div className="my-10 flex items-center gap-3">
-                  <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#D4AF37]/50" />
+                {/* =====================================
+                    DECORATIVE DIVIDER
+                ===================================== */}
 
-                  <span className="h-2 w-2 rotate-45 border border-[#D4AF37]" />
+                <div className="my-8 flex items-center gap-3">
+                  <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#D4AF37]/35" />
 
-                  <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#D4AF37]/50" />
+                  <span className="h-[5px] w-[5px] rotate-45 bg-[#D4AF37]/70" />
+
+                  <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#D4AF37]/35" />
                 </div>
 
-                {/* Mobile Links */}
-                <nav className="flex flex-1 flex-col justify-center">
-                  {navLinks.map((link, index) => (
-                    <motion.div
-                      key={link.name}
-                      initial={{ opacity: 0, x: 35 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: 0.12 + index * 0.08,
-                      }}
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={() => setMenuOpen(false)}
-                        className="group flex items-center justify-between border-b border-[#F4EFE6]/8 py-6"
-                      >
-                        <span className="font-serif text-4xl italic text-[#F4EFE6] transition-colors duration-300 group-hover:text-[#D4AF37]">
-                          {link.name}
-                        </span>
+                {/* =====================================
+                    MOBILE LINKS
+                ===================================== */}
 
-                        <span className="text-xl text-[#7E2A5A] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#D4AF37]">
-                          →
-                        </span>
-                      </Link>
-                    </motion.div>
-                  ))}
+                <nav className="flex flex-1 flex-col justify-center">
+                  {navLinks.map(
+                    (link, index) => (
+                      <motion.div
+                        key={link.name}
+                        initial={{
+                          opacity: 0,
+                          x: 30,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0,
+                        }}
+                        transition={{
+                          delay:
+                            0.1 +
+                            index *
+                              0.07,
+                        }}
+                      >
+                        <Link
+                          href={
+                            link.href
+                          }
+                          onClick={() =>
+                            setMenuOpen(
+                              false
+                            )
+                          }
+                          className="group relative flex items-center justify-between border-b border-[#F4EFE6]/[0.07] py-5"
+                        >
+                          <div className="flex items-baseline gap-4">
+                            <span className="text-[8px] tracking-[0.18em] text-[#D4AF37]/45">
+                              0
+                              {index + 1}
+                            </span>
+
+                            <span className="font-serif text-[34px] italic leading-none text-[#F4EFE6] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#D4AF37]">
+                              {
+                                link.name
+                              }
+                            </span>
+                          </div>
+
+                          <FiArrowUpRight className="text-lg text-[#7E2A5A] transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#D4AF37]" />
+                        </Link>
+                      </motion.div>
+                    )
+                  )}
                 </nav>
 
-                {/* Mobile Contact Button */}
-                <Link
-                  href="#contact"
-                  onClick={() => setMenuOpen(false)}
-                  className="group relative mb-8 mt-6 flex items-center justify-center overflow-hidden border border-[#D4AF37]/50 px-6 py-4"
+                {/* =====================================
+                    MOBILE CONTACT
+                ===================================== */}
+
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: 20,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    delay: 0.4,
+                  }}
+                  className="mt-7"
                 >
-                  <span className="absolute inset-0 translate-y-full bg-[#D4AF37] transition-transform duration-300 group-hover:translate-y-0" />
+                  <Link
+                    href="#contact"
+                    onClick={() =>
+                      setMenuOpen(false)
+                    }
+                    className="group relative flex w-full items-center justify-between overflow-hidden border border-[#D4AF37]/40 bg-[#4A111C]/30 px-6 py-5"
+                  >
+                    <span className="absolute inset-0 origin-left scale-x-0 bg-[#D4AF37] transition-transform duration-500 group-hover:scale-x-100" />
 
-                  <span className="relative text-[10px] uppercase tracking-[0.35em] text-[#D4AF37] transition-colors duration-300 group-hover:text-[#121212]">
-                    Let&apos;s Talk
+                    <span className="relative text-[9px] uppercase tracking-[0.35em] text-[#D4AF37] transition-colors group-hover:text-[#101010]">
+                      Start a Project
+                    </span>
+
+                    <FiArrowUpRight className="relative text-lg text-[#D4AF37] transition-colors group-hover:text-[#101010]" />
+                  </Link>
+                </motion.div>
+
+                {/* =====================================
+                    FOOTER
+                ===================================== */}
+
+                <div className="mt-6 flex items-center justify-between border-t border-[#F4EFE6]/[0.06] pt-5">
+                  <p className="text-[7px] uppercase tracking-[0.28em] text-[#F4EFE6]/30">
+                    Entertainment Design
+                  </p>
+
+                  <span className="font-serif text-xs italic text-[#D4AF37]/45">
+                    LM
                   </span>
-                </Link>
-
-                {/* Footer */}
-                <div className="border-t border-[#D4AF37]/20 pt-6">
-                  <p className="text-[9px] uppercase tracking-[0.4em] text-[#725563]">
-                    Design • Direction • Visual
-                  </p>
-
-                  <p className="mt-3 font-serif text-sm italic text-[#F4EFE6]/50">
-                    Bringing stories to life through design.
-                  </p>
                 </div>
               </div>
             </motion.aside>

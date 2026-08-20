@@ -26,6 +26,10 @@ model Project {
 
   coverImage    String?
 
+  // Motion Graphics media
+  previewVideo  String?
+  videoPoster   String?
+
   oneSheets     String[]
   outdoor       String[]
   international String[]

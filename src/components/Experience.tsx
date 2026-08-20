@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "motion/react";
-import { FiMapPin } from "react-icons/fi";
+import {
+  FiMapPin,
+  FiArrowUpRight,
+} from "react-icons/fi";
 
 type ExperienceItem = {
   id: string;
@@ -24,59 +27,96 @@ export default function Experience({
   return (
     <section
       id="experience"
-      className="relative overflow-hidden bg-[#121212] px-5 py-16 text-[#F4EFE6] sm:px-7 md:px-10 lg:px-12 lg:py-20"
+      className="relative overflow-hidden bg-[#121212] px-5 py-20 text-[#F4EFE6] sm:px-7 md:px-10 lg:px-12 lg:py-24"
     >
-      {/* Background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[8%] top-[18%] h-[260px] w-[260px] rounded-full bg-[#5B1E3A]/10 blur-[120px]" />
+      {/* =====================================
+          BACKGROUND
+      ===================================== */}
 
-        <div className="absolute right-[6%] top-[30%] h-[280px] w-[280px] rounded-full bg-[#D4AF37]/5 blur-[135px]" />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-32 top-[15%] h-[420px] w-[420px] rounded-full bg-[#5B1E3A]/14 blur-[160px]" />
+
+        <div className="absolute -right-32 bottom-[5%] h-[420px] w-[420px] rounded-full bg-[#A45728]/7 blur-[170px]" />
+
+        <div className="absolute left-1/2 top-[45%] h-[280px] w-[600px] -translate-x-1/2 rounded-full bg-[#D4AF37]/[0.02] blur-[130px]" />
+
+        <div className="absolute inset-0 opacity-[0.018] [background-image:repeating-linear-gradient(90deg,transparent_0px,transparent_170px,rgba(255,255,255,.15)_171px,transparent_172px)]" />
       </div>
 
-      {/* Top divider */}
+      {/* top divider */}
+
       <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent" />
 
-      <div className="relative mx-auto max-w-[1080px]">
-        {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="mb-2.5 flex items-center gap-3">
-              <span className="h-px w-7 bg-[#D4AF37]" />
+      <div className="relative mx-auto max-w-[1180px]">
+        {/* =====================================
+            HEADER
+        ===================================== */}
 
-              <p className="text-[8px] uppercase tracking-[0.4em] text-[#D4AF37]">
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.6,
+          }}
+          className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between"
+        >
+          <div>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="h-px w-8 bg-[#D4AF37]" />
+
+              <p className="text-[9px] uppercase tracking-[0.42em] text-[#D4AF37]">
                 Experience
               </p>
             </div>
 
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[46px]">
+            <h2 className="font-serif text-[38px] leading-none sm:text-[46px] lg:text-[52px]">
               Behind the
-              <span className="italic text-[#7E2A5A]"> scenes.</span>
+              <span className="italic text-[#8A345F]">
+                {" "}
+                scenes.
+              </span>
             </h2>
           </div>
 
-          <p className="max-w-[360px] text-[12px] leading-5 text-[#F4EFE6]/45 md:text-right">
-            A look at the roles, teams, and creative environments that have
-            shaped my work.
+          <p className="max-w-[400px] text-[14px] leading-6 text-[#F4EFE6]/42 md:text-right">
+            A look at the studios, roles, and creative environments
+            behind the work.
           </p>
-        </div>
+        </motion.div>
 
-        {/* No Experience */}
+        {/* =====================================
+            EMPTY STATE
+        ===================================== */}
+
         {experience.length === 0 && (
-          <div className="border border-[#D4AF37]/10 bg-[#171414] px-6 py-10 text-center">
-            <p className="font-serif text-xl text-[#F4EFE6]/50">
+          <div className="border border-[#D4AF37]/12 bg-[#151313] px-6 py-14 text-center">
+            <p className="font-serif text-[24px] text-[#F4EFE6]/55">
               Experience coming soon.
             </p>
           </div>
         )}
 
-        {/* Tickets */}
-        <div className="space-y-4">
+        {/* =====================================
+            EXPERIENCE TICKETS
+        ===================================== */}
+
+        <div className="space-y-5">
           {experience.map((item, index) => (
             <motion.article
               key={item.id}
               initial={{
                 opacity: 0,
-                y: 18,
+                y: 24,
               }}
               whileInView={{
                 opacity: 1,
@@ -84,183 +124,220 @@ export default function Experience({
               }}
               viewport={{
                 once: true,
-                amount: 0.18,
+                amount: 0.15,
               }}
               transition={{
-                duration: 0.45,
-                delay: index * 0.06,
+                duration: 0.55,
+                delay: index * 0.07,
+                ease: [0.22, 1, 0.36, 1],
               }}
               whileHover={{
-                y: -3,
-                rotate: index % 2 === 0 ? -0.12 : 0.12,
+                y: -4,
               }}
-              className="relative"
+              className="group relative"
             >
-              {/* Ticket shadow */}
-              <div className="absolute inset-0 translate-x-[4px] translate-y-[5px] bg-[#5B1E3A]/50" />
+              {/* =====================================
+                  TICKET SHADOW
+              ===================================== */}
 
-              {/* Ticket */}
-              <div className="group relative overflow-hidden bg-[#C49A60] text-[#35191C] shadow-[0_14px_35px_rgba(0,0,0,0.28)]">
-                {/* Paper texture */}
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,232,185,.14),transparent_30%,rgba(91,30,58,.07)),radial-gradient(circle_at_20%_30%,rgba(255,240,200,.12),transparent_30%)]" />
+              <div className="absolute inset-0 translate-x-[5px] translate-y-[6px] bg-[#5B1E3A]/22 transition-transform duration-500 group-hover:translate-x-[7px] group-hover:translate-y-[8px]" />
 
-                {/* Outer frame */}
-                <div className="pointer-events-none absolute inset-[6px] border-[2px] border-[#6D243C]/80" />
+              {/* =====================================
+    MAIN TICKET
+===================================== */}
 
-                {/* Inner frame */}
-                <div className="pointer-events-none absolute inset-[11px] border border-[#D4AF37]/40" />
+<div className="relative overflow-hidden border border-[#D4AF37]/20 bg-[#151313] shadow-[0_22px_55px_rgba(0,0,0,0.4)]">
+  {/* atmosphere */}
 
-                <div className="grid grid-cols-1 md:grid-cols-[1fr_145px]">
-                  {/* Main side */}
-                  <div className="relative px-6 py-5 sm:px-7 md:px-8">
-                    {/* Top */}
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[#5B1E3A]/30 pb-3">
-                      <div className="flex items-center gap-2.5">
-                        <p className="text-[7px] font-bold uppercase tracking-[0.32em] text-[#5B1E3A]">
-                          {item.current
-                            ? "Now Showing"
-                            : "Previous Feature"}
-                        </p>
+  <div className="pointer-events-none absolute inset-0">
+    <div className="absolute -left-32 -top-32 h-[300px] w-[300px] rounded-full bg-[#5B1E3A]/18 blur-[110px]" />
 
-                        <span className="h-px w-5 bg-[#5B1E3A]/40" />
-                      </div>
+    <div className="absolute right-[5%] top-1/2 h-[200px] w-[280px] -translate-y-1/2 rounded-full bg-[#D4AF37]/[0.025] blur-[100px]" />
 
-                      <p className="text-[7px] font-semibold uppercase tracking-[0.22em] text-[#35191C]/60">
-                        {item.period}
-                      </p>
-                    </div>
+    <div className="absolute inset-0 opacity-[0.025] [background-image:repeating-linear-gradient(0deg,transparent_0px,transparent_8px,rgba(255,255,255,.12)_9px,transparent_10px)]" />
+  </div>
 
-                    {/* Ticket title */}
-                    <div className="mb-4 text-center">
-                      <p className="text-[7px] uppercase tracking-[0.28em] text-[#5B1E3A]/75">
-                        Creative Experience Presents
-                      </p>
+  {/* inner frame */}
 
-                      <h3 className="mt-1.5 font-serif text-2xl font-semibold uppercase tracking-[0.03em] text-[#5B1E3A] sm:text-[28px]">
-                        {item.role}
-                      </h3>
+  <div className="pointer-events-none absolute inset-[7px] border border-[#D4AF37]/10" />
 
-                      <div className="mt-1.5 flex items-center justify-center gap-1.5">
-                        {Array.from({ length: 5 }).map((_, star) => (
-                          <span
-                            key={star}
-                            className="text-[7px] text-[#5B1E3A]"
-                          >
-                            ★
-                          </span>
-                        ))}
-                      </div>
+  <div className="relative grid md:grid-cols-[1fr_190px]">
+    {/* =====================================
+        MAIN SIDE
+    ===================================== */}
 
-                      <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#35191C]">
-                        {item.company}
-                      </p>
-                    </div>
+    <div className="relative px-6 py-7 sm:px-8 sm:py-8 lg:px-10 lg:py-9">
+      {/* ticket micro header */}
 
-                    {/* Info */}
-                    <div className="grid gap-4 border-y border-[#5B1E3A]/25 py-4 lg:grid-cols-[0.7fr_1.3fr]">
-                      <div className="border-b border-[#5B1E3A]/15 pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-5">
-                        <p className="text-[6px] font-semibold uppercase tracking-[0.25em] text-[#5B1E3A]">
-                          Location
-                        </p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#D4AF37]/10 pb-4">
+        <div className="flex items-center gap-3">
+          <span className="h-[6px] w-[6px] rotate-45 bg-[#D4AF37]" />
 
-                        <div className="mt-1.5 flex items-center gap-1.5 text-[9px] font-medium uppercase tracking-[0.08em] text-[#35191C]/70">
-                          <FiMapPin className="text-[#5B1E3A]" />
+          <p className="text-[8px] uppercase tracking-[0.34em] text-[#D4AF37]/75">
+            {item.current
+              ? "Now Showing"
+              : "Past Feature"}
+          </p>
+        </div>
 
-                          <span>
-                            {item.location || "Los Angeles, CA"}
-                          </span>
-                        </div>
+        <p className="text-[8px] uppercase tracking-[0.24em] text-[#F4EFE6]/30">
+          {item.period}
+        </p>
+      </div>
 
-                        <p className="mt-4 text-[6px] font-semibold uppercase tracking-[0.25em] text-[#5B1E3A]">
-                          Engagement
-                        </p>
+      {/* content */}
 
-                        <p className="mt-1.5 text-[9px] font-medium uppercase tracking-[0.08em] text-[#35191C]/70">
-                          {item.period}
-                        </p>
-                      </div>
+      <div className="grid gap-7 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12">
+        <div>
+          <p className="mb-3 text-[8px] uppercase tracking-[0.34em] text-[#8A345F]">
+            {item.company}
+          </p>
 
-                      <div>
-                        <p className="text-[11px] leading-5 text-[#35191C]/72 sm:text-[12px]">
-                          {item.description}
-                        </p>
+          <h3 className="font-serif text-[32px] leading-[0.98] text-[#F4EFE6] sm:text-[38px] lg:text-[42px]">
+            {item.role}
+          </h3>
 
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {item.highlights.map((highlight) => (
-                            <span
-                              key={highlight}
-                              className="border border-[#5B1E3A]/30 bg-[#5B1E3A]/5 px-2 py-1.5 text-[6px] font-semibold uppercase tracking-[0.12em] text-[#4A1C29]"
-                            >
-                              {highlight}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+          <div className="mt-5 flex items-center gap-3">
+            <span className="h-px w-8 bg-[#D4AF37]/55" />
 
-                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-[6px] uppercase tracking-[0.26em] text-[#35191C]/50">
-                        Admit One • Creative Department
-                      </p>
+            <div className="flex items-center gap-2 text-[#F4EFE6]/32">
+              <FiMapPin className="shrink-0 text-[13px] text-[#D4AF37]/65" />
 
-                      <p className="text-[6px] uppercase tracking-[0.26em] text-[#5B1E3A]/70">
-                        Portfolio Feature
-                      </p>
-                    </div>
-                  </div>
+              <p className="text-[11px] uppercase tracking-[0.15em]">
+                {item.location || "Los Angeles, CA"}
+              </p>
+            </div>
+          </div>
+        </div>
 
-                  {/* Stub */}
-                  <div className="relative border-t-2 border-dashed border-[#5B1E3A]/50 bg-[#B98A54] px-4 py-5 md:border-l-2 md:border-t-0">
-                    <div className="absolute -left-[9px] -top-[9px] hidden h-[18px] w-[18px] rounded-full bg-[#121212] md:block" />
+        <div className="lg:border-l lg:border-[#D4AF37]/10 lg:pl-10">
+          <p className="text-[14px] leading-7 text-[#F4EFE6]/55">
+            {item.description}
+          </p>
 
-                    <div className="absolute -bottom-[9px] -left-[9px] hidden h-[18px] w-[18px] rounded-full bg-[#121212] md:block" />
+          {item.highlights.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {item.highlights.map((highlight) => (
+                <span
+                  key={highlight}
+                  className="border border-[#D4AF37]/12 bg-[#D4AF37]/[0.025] px-3 py-1.5 text-[8px] uppercase tracking-[0.18em] text-[#F4EFE6]/42"
+                >
+                  {highlight}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-                    <div className="pointer-events-none absolute inset-[7px] border border-[#5B1E3A]/30" />
+      {/* bottom ticket metadata */}
 
-                    <div className="relative flex h-full flex-col items-center justify-between text-center">
-                      <div>
-                        <p className="text-[7px] font-bold uppercase tracking-[0.3em] text-[#5B1E3A]">
-                          Admit One
-                        </p>
+      <div className="mt-7 grid grid-cols-3 gap-4 border-t border-[#D4AF37]/10 pt-4">
+        <div>
+          <p className="text-[6px] uppercase tracking-[0.26em] text-[#F4EFE6]/20">
+            Theatre
+          </p>
 
-                        <div className="mx-auto mt-2 h-px w-10 bg-[#5B1E3A]/40" />
-                      </div>
+          <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-[#D4AF37]/45">
+            Portfolio
+          </p>
+        </div>
 
-                      <div className="my-4">
-                        <p className="text-[6px] uppercase tracking-[0.2em] text-[#35191C]/50">
-                          Seat
-                        </p>
+        <div>
+          <p className="text-[6px] uppercase tracking-[0.26em] text-[#F4EFE6]/20">
+            Feature
+          </p>
 
-                        <p className="mt-1 font-serif text-xl font-semibold text-[#5B1E3A]">
-                          A-{index + 1}
-                        </p>
-                      </div>
+          <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-[#D4AF37]/45">
+            Experience
+          </p>
+        </div>
 
-                      <div className="w-full">
-                        <div className="mb-3 flex items-center gap-2">
-                          <span className="h-px flex-1 bg-[#5B1E3A]/25" />
+        <div className="text-right">
+          <p className="text-[6px] uppercase tracking-[0.26em] text-[#F4EFE6]/20">
+            Entry
+          </p>
 
-                          <span className="text-[7px] text-[#5B1E3A]">
-                            ★
-                          </span>
+          <p className="mt-1 text-[8px] uppercase tracking-[0.2em] text-[#D4AF37]/45">
+            {String(index + 1).padStart(2, "0")}
+          </p>
+        </div>
+      </div>
+    </div>
 
-                          <span className="h-px flex-1 bg-[#5B1E3A]/25" />
-                        </div>
+    {/* =====================================
+        STUB
+    ===================================== */}
 
-                        <p className="text-[5px] uppercase tracking-[0.2em] text-[#35191C]/50">
-                          Status
-                        </p>
+    <div className="relative border-t-2 border-dashed border-[#D4AF37]/30 bg-[#100F0F] px-5 py-6 md:border-l-2 md:border-t-0">
+      {/* ticket punch-outs */}
 
-                        <p className="mt-1 text-[7px] font-bold uppercase tracking-[0.14em] text-[#5B1E3A]">
-                          {item.current
-                            ? "Present"
-                            : "Completed"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <div className="absolute -left-[12px] -top-[12px] hidden h-6 w-6 rounded-full bg-[#121212] md:block" />
+
+      <div className="absolute -bottom-[12px] -left-[12px] hidden h-6 w-6 rounded-full bg-[#121212] md:block" />
+
+      <div className="pointer-events-none absolute inset-[7px] border border-[#D4AF37]/10" />
+
+      <div className="relative flex h-full flex-row items-center justify-between gap-6 md:flex-col md:items-stretch">
+        {/* admit one */}
+
+        <div className="md:text-center">
+          <p className="text-[7px] uppercase tracking-[0.38em] text-[#D4AF37]/55">
+            Admit One
+          </p>
+
+          <div className="mx-auto mt-3 hidden h-px w-10 bg-[#D4AF37]/20 md:block" />
+
+          <p className="mt-2 font-serif text-[18px] italic text-[#F4EFE6]/70">
+            Creative Dept.
+          </p>
+        </div>
+
+        {/* ticket number */}
+
+        <div className="hidden md:block">
+          <p className="text-center text-[6px] uppercase tracking-[0.26em] text-[#F4EFE6]/20">
+            Ticket No.
+          </p>
+
+          <p className="mt-2 text-center font-serif text-[30px] leading-none text-[#8A345F]">
+            {String(index + 1).padStart(2, "0")}
+          </p>
+        </div>
+
+        {/* faux barcode */}
+
+        <div className="hidden md:block">
+          <div className="mx-auto flex h-[36px] w-[78px] items-end justify-between gap-[2px] opacity-35">
+            {[18, 28, 22, 34, 24, 31, 20, 35, 27, 32, 21].map(
+              (height, barIndex) => (
+                <span
+                  key={barIndex}
+                  className="w-[2px] bg-[#D4AF37]"
+                  style={{ height }}
+                />
+              )
+            )}
+          </div>
+        </div>
+
+        {/* status */}
+
+        <div className="text-right md:text-center">
+          <p className="text-[6px] uppercase tracking-[0.26em] text-[#F4EFE6]/20">
+            Status
+          </p>
+
+          <p className="mt-1.5 text-[8px] uppercase tracking-[0.2em] text-[#D4AF37]/65">
+            {item.current
+              ? "Now Showing"
+              : "Completed"}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
             </motion.article>
           ))}
         </div>

@@ -9,7 +9,9 @@ import { useRouter } from "next/navigation";
 
 import {
   FiAlertCircle,
+  FiCheck,
   FiCheckCircle,
+  FiLoader,
   FiPlus,
   FiTrash2,
 } from "react-icons/fi";
@@ -36,23 +38,21 @@ type FieldErrors = {
   description?: string;
   highlights?: string;
   current?: string;
-  sortOrder?: string;
   general?: string;
 };
 
-const orderOptions = [
-  { value: 0, label: "First" },
-  { value: 1, label: "Second" },
-  { value: 2, label: "Third" },
-  { value: 3, label: "Fourth" },
-  { value: 4, label: "Fifth" },
-  { value: 5, label: "Sixth" },
-];
+type Placement = "top" | "bottom";
 
 export default function ExperienceForm({
   initialData,
 }: ExperienceFormProps) {
   const router = useRouter();
+
+  const editing = Boolean(initialData?.id);
+
+  /* =====================================
+     FORM STATE
+  ===================================== */
 
   const [company, setCompany] = useState(
     initialData?.company ?? ""
@@ -78,9 +78,14 @@ export default function ExperienceForm({
     initialData?.current ?? false
   );
 
-  const [sortOrder, setSortOrder] = useState(
-    initialData?.sortOrder ?? 0
-  );
+  /*
+   * Only exposed choice:
+   * top or bottom.
+   *
+   * The API will calculate the actual sortOrder.
+   */
+  const [placement, setPlacement] =
+    useState<Placement>("bottom");
 
   const [highlights, setHighlights] = useState<string[]>(
     initialData?.highlights?.length
@@ -93,18 +98,23 @@ export default function ExperienceForm({
   const [errors, setErrors] =
     useState<FieldErrors>({});
 
-  const [success, setSuccess] =
-    useState("");
+  const [success, setSuccess] = useState("");
 
-  function clearError(
-    field: keyof FieldErrors
-  ) {
+  /* =====================================
+     ERROR HELPERS
+  ===================================== */
+
+  function clearError(field: keyof FieldErrors) {
     setErrors((previous) => ({
       ...previous,
       [field]: undefined,
       general: undefined,
     }));
   }
+
+  /* =====================================
+     HIGHLIGHTS
+  ===================================== */
 
   function updateHighlight(
     index: number,
@@ -136,9 +146,7 @@ export default function ExperienceForm({
     ]);
   }
 
-  function removeHighlight(
-    index: number
-  ) {
+  function removeHighlight(index: number) {
     if (highlights.length === 1) {
       return;
     }
@@ -152,6 +160,10 @@ export default function ExperienceForm({
 
     clearError("highlights");
   }
+
+  /* =====================================
+     VALIDATION
+  ===================================== */
 
   function validateClient() {
     const nextErrors: FieldErrors = {};
@@ -171,38 +183,28 @@ export default function ExperienceForm({
         'Enter a period such as "2025 — Present".';
     }
 
-    if (
-      description.trim().length < 20
-    ) {
+    if (description.trim().length < 20) {
       nextErrors.description =
-        "Add a more detailed description — at least 20 characters.";
+        "Add a little more detail — at least 20 characters.";
     }
 
-    if (
-      description.trim().length > 1000
-    ) {
+    if (description.trim().length > 1000) {
       nextErrors.description =
         "Description cannot exceed 1000 characters.";
     }
 
-    const validHighlights =
-      highlights
-        .map((highlight) =>
-          highlight.trim()
-        )
-        .filter(Boolean);
+    const validHighlights = highlights
+      .map((highlight) => highlight.trim())
+      .filter(Boolean);
 
-    if (
-      validHighlights.length === 0
-    ) {
+    if (validHighlights.length === 0) {
       nextErrors.highlights =
         "Add at least one highlight.";
     }
 
     if (
       validHighlights.some(
-        (highlight) =>
-          highlight.length < 2
+        (highlight) => highlight.length < 2
       )
     ) {
       nextErrors.highlights =
@@ -211,8 +213,7 @@ export default function ExperienceForm({
 
     if (
       validHighlights.some(
-        (highlight) =>
-          highlight.length > 80
+        (highlight) => highlight.length > 80
       )
     ) {
       nextErrors.highlights =
@@ -221,21 +222,23 @@ export default function ExperienceForm({
 
     setErrors(nextErrors);
 
-    return (
-      Object.keys(nextErrors).length ===
-      0
-    );
+    return Object.keys(nextErrors).length === 0;
   }
+
+  /* =====================================
+     SUBMIT
+  ===================================== */
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
+    if (saving) return;
+
     setSuccess("");
 
-    const valid =
-      validateClient();
+    const valid = validateClient();
 
     if (!valid) {
       window.scrollTo({
@@ -249,60 +252,45 @@ export default function ExperienceForm({
     setSaving(true);
     setErrors({});
 
-    const endpoint =
-      initialData?.id
-        ? `/api/admin/experience/${initialData.id}`
-        : "/api/admin/experience";
+    const endpoint = initialData?.id
+      ? `/api/admin/experience/${initialData.id}`
+      : "/api/admin/experience";
 
-    const method =
-      initialData?.id
-        ? "PUT"
-        : "POST";
+    const method = initialData?.id
+      ? "PUT"
+      : "POST";
 
     try {
-      const response =
-        await fetch(endpoint, {
-          method,
+      const response = await fetch(endpoint, {
+        method,
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-          body: JSON.stringify({
-            company:
-              company.trim(),
+        body: JSON.stringify({
+          company: company.trim(),
+          role: role.trim(),
+          location: location.trim(),
+          period: period.trim(),
+          description: description.trim(),
+          current,
 
-            role:
-              role.trim(),
+          /*
+           * API decides the numeric sortOrder.
+           */
+          placement,
 
-            location:
-              location.trim(),
-
-            period:
-              period.trim(),
-
-            description:
-              description.trim(),
-
-            current,
-
-            sortOrder,
-
-            highlights:
-              highlights
-                .map(
-                  (highlight) =>
-                    highlight.trim()
-                )
-                .filter(Boolean),
-          }),
-        });
+          highlights: highlights
+            .map((highlight) =>
+              highlight.trim()
+            )
+            .filter(Boolean),
+        }),
+      });
 
       const contentType =
-        response.headers.get(
-          "content-type"
-        );
+        response.headers.get("content-type");
 
       let data: any = null;
 
@@ -311,36 +299,24 @@ export default function ExperienceForm({
           "application/json"
         )
       ) {
-        data =
-          await response.json();
+        data = await response.json();
       } else {
-        const text =
-          await response.text();
+        const text = await response.text();
 
         console.error(
           "SERVER RETURNED NON-JSON RESPONSE:",
           {
-            status:
-              response.status,
-
-            statusText:
-              response.statusText,
-
-            url:
-              response.url,
-
-            body:
-              text.slice(
-                0,
-                500
-              ),
+            status: response.status,
+            statusText: response.statusText,
+            url: response.url,
+            body: text.slice(0, 500),
           }
         );
 
         setErrors({
           general:
             `Server returned ${response.status} ${response.statusText}. ` +
-            "Check that the API route exists at /api/admin/experience.",
+            "Check that the experience API route exists.",
         });
 
         return;
@@ -354,8 +330,7 @@ export default function ExperienceForm({
 
         if (
           data?.errors &&
-          typeof data.errors ===
-            "object"
+          typeof data.errors === "object"
         ) {
           setErrors({
             ...data.errors,
@@ -373,22 +348,24 @@ export default function ExperienceForm({
           });
         }
 
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+
         return;
       }
 
       setSuccess(
-        initialData?.id
+        editing
           ? "Experience updated successfully."
           : "Experience added successfully."
       );
 
-      setTimeout(() => {
-        router.push(
-          "/admin/experience"
-        );
-
+      window.setTimeout(() => {
+        router.push("/admin/experience");
         router.refresh();
-      }, 500);
+      }, 650);
     } catch (error) {
       console.error(
         "EXPERIENCE FORM ERROR:",
@@ -397,7 +374,7 @@ export default function ExperienceForm({
 
       setErrors({
         general:
-          "Could not contact the server. Make sure both Next.js and the Prisma development database are running.",
+          "Could not contact the server. Please try again.",
       });
     } finally {
       setSaving(false);
@@ -408,66 +385,79 @@ export default function ExperienceForm({
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="space-y-7"
+      className="space-y-6"
     >
-      {/* General Error */}
+      {/* =====================================
+          GENERAL ERROR
+      ===================================== */}
+
       {errors.general && (
-        <div className="flex items-start gap-3 border border-red-500/25 bg-red-500/5 px-4 py-4">
-          <FiAlertCircle className="mt-0.5 shrink-0 text-red-400" />
+        <div className="flex items-start gap-3 border border-red-500/25 bg-red-500/[0.06] px-4 py-4">
+          <FiAlertCircle className="mt-0.5 shrink-0 text-lg text-red-400" />
 
           <div>
-            <p className="text-sm font-medium text-red-300">
+            <p className="text-[14px] font-medium text-red-300">
               We couldn&apos;t save this experience.
             </p>
 
-            <p className="mt-1 text-xs leading-5 text-red-300/70">
+            <p className="mt-1 text-[12px] leading-5 text-red-300/65">
               {errors.general}
             </p>
           </div>
         </div>
       )}
 
-      {/* Success */}
-      {success && (
-        <div className="flex items-start gap-3 border border-green-500/25 bg-green-500/5 px-4 py-4">
-          <FiCheckCircle className="mt-0.5 shrink-0 text-green-400" />
+      {/* =====================================
+          SUCCESS
+      ===================================== */}
 
-          <p className="text-sm text-green-300">
-            {success}
-          </p>
+      {success && (
+        <div className="flex items-center gap-3 border border-green-500/25 bg-green-500/[0.06] px-4 py-4">
+          <FiCheckCircle className="shrink-0 text-lg text-green-400" />
+
+          <div>
+            <p className="text-[14px] font-medium text-green-300">
+              {success}
+            </p>
+
+            <p className="mt-1 text-[11px] text-green-300/50">
+              Returning to Experience...
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Basic Information */}
+      {/* =====================================
+          BASIC INFORMATION
+      ===================================== */}
+
       <FormSection
         title="Basic Information"
-        description="The main information displayed on the experience ticket."
+        description="The main details shown on the experience card."
       >
         <div className="grid gap-5 md:grid-cols-2">
           <Field
             label="Company"
             required
+            disabled={saving}
             value={company}
-            error={
-              errors.company
-            }
+            error={errors.company}
             placeholder="Sony Pictures Entertainment"
-            help="The company, studio, organization, or client."
+            help="Company, studio, organization, or client."
             onChange={(value) => {
               setCompany(value);
-              clearError(
-                "company"
-              );
+              clearError("company");
             }}
           />
 
           <Field
             label="Role"
             required
+            disabled={saving}
             value={role}
             error={errors.role}
             placeholder="Graphic Designer"
-            help="Her job title or professional role."
+            help="Job title or professional role."
             onChange={(value) => {
               setRole(value);
               clearError("role");
@@ -476,47 +466,46 @@ export default function ExperienceForm({
 
           <Field
             label="Location"
+            disabled={saving}
             value={location}
-            error={
-              errors.location
-            }
+            error={errors.location}
             placeholder="Los Angeles, CA"
             help="Optional."
             onChange={(value) => {
               setLocation(value);
-              clearError(
-                "location"
-              );
+              clearError("location");
             }}
           />
 
           <Field
             label="Period"
             required
+            disabled={saving}
             value={period}
             error={errors.period}
             placeholder="2025 — Present"
             help='Example: "2023 — 2025" or "2025 — Present".'
             onChange={(value) => {
               setPeriod(value);
-              clearError(
-                "period"
-              );
+              clearError("period");
             }}
           />
         </div>
       </FormSection>
 
-      {/* Description */}
+      {/* =====================================
+          DESCRIPTION
+      ===================================== */}
+
       <FormSection
         title="Description"
-        description="A short summary of what she worked on in this role."
+        description="A concise summary of the work completed in this role."
       >
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between gap-4">
             <label
               htmlFor="description"
-              className="text-[8px] uppercase tracking-[0.28em] text-[#D4AF37]"
+              className="text-[9px] uppercase tracking-[0.26em] text-[#D4AF37]"
             >
               Role Description
 
@@ -526,39 +515,31 @@ export default function ExperienceForm({
             </label>
 
             <span
-              className={`text-[8px] ${
-                description.length >
-                1000
+              className={`text-[9px] ${
+                description.length >= 950
                   ? "text-red-400"
                   : "text-[#F4EFE6]/25"
               }`}
             >
-              {
-                description.length
-              }
-              /1000
+              {description.length}/1000
             </span>
           </div>
 
           <textarea
             id="description"
+            disabled={saving}
             value={description}
-            onChange={(
-              event
-            ) => {
+            onChange={(event) => {
               setDescription(
-                event.target
-                  .value
+                event.target.value
               );
 
-              clearError(
-                "description"
-              );
+              clearError("description");
             }}
             rows={5}
             maxLength={1000}
             placeholder="Creating entertainment-focused design work across theatrical campaigns, key art, and promotional materials..."
-            className={`w-full resize-none border bg-[#121212] px-4 py-3 text-sm leading-6 outline-none transition ${
+            className={`w-full resize-none border bg-[#121212] px-4 py-3.5 text-[14px] leading-6 text-[#F4EFE6]/80 outline-none transition placeholder:text-[#F4EFE6]/18 disabled:cursor-not-allowed disabled:opacity-50 ${
               errors.description
                 ? "border-red-500/60"
                 : "border-[#D4AF37]/15 focus:border-[#D4AF37]/45"
@@ -567,60 +548,55 @@ export default function ExperienceForm({
 
           {errors.description ? (
             <ErrorMessage>
-              {
-                errors.description
-              }
+              {errors.description}
             </ErrorMessage>
           ) : (
             <HelpText>
-              Aim for one or two concise sentences.
+              One or two concise sentences works best.
             </HelpText>
           )}
         </div>
       </FormSection>
 
-      {/* Highlights */}
+      {/* =====================================
+          HIGHLIGHTS
+      ===================================== */}
+
       <FormSection
         title="Highlights"
-        description="Short skills or responsibilities shown underneath the experience."
+        description="Short areas of expertise or responsibilities shown with this role."
       >
         <div className="space-y-3">
           {highlights.map(
-            (
-              highlight,
-              index
-            ) => (
+            (highlight, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2.5"
               >
-                <div className="flex h-11 w-8 shrink-0 items-center justify-center border border-[#D4AF37]/10 bg-[#121212] text-[8px] text-[#F4EFE6]/30">
-                  {index + 1}
+                <div className="flex h-11 w-9 shrink-0 items-center justify-center border border-[#D4AF37]/10 bg-[#121212] font-serif text-[11px] text-[#D4AF37]/55">
+                  {String(
+                    index + 1
+                  ).padStart(2, "0")}
                 </div>
 
                 <input
-                  value={
-                    highlight
-                  }
+                  disabled={saving}
+                  value={highlight}
                   maxLength={80}
-                  onChange={(
-                    event
-                  ) =>
+                  onChange={(event) =>
                     updateHighlight(
                       index,
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                   placeholder={
                     index === 0
                       ? "Key Art Development"
-                      : index ===
-                          1
+                      : index === 1
                         ? "Campaign Adaptations"
                         : "Entertainment Marketing"
                   }
-                  className={`h-11 flex-1 border bg-[#121212] px-4 text-sm outline-none transition ${
+                  className={`h-11 min-w-0 flex-1 border bg-[#121212] px-4 text-[14px] text-[#F4EFE6]/80 outline-none transition placeholder:text-[#F4EFE6]/18 disabled:cursor-not-allowed disabled:opacity-50 ${
                     errors.highlights
                       ? "border-red-500/40"
                       : "border-[#D4AF37]/15 focus:border-[#D4AF37]/45"
@@ -630,16 +606,14 @@ export default function ExperienceForm({
                 <button
                   type="button"
                   disabled={
-                    highlights.length ===
-                    1
+                    saving ||
+                    highlights.length === 1
                   }
                   onClick={() =>
-                    removeHighlight(
-                      index
-                    )
+                    removeHighlight(index)
                   }
                   title="Remove highlight"
-                  className="flex h-11 w-11 items-center justify-center border border-[#7E2A5A]/20 text-[#F4EFE6]/30 transition hover:border-[#7E2A5A]/50 hover:text-[#7E2A5A] disabled:cursor-not-allowed disabled:opacity-20"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#7E2A5A]/20 text-[#F4EFE6]/30 transition hover:border-[#7E2A5A]/50 hover:bg-[#7E2A5A]/5 hover:text-[#A64A79] disabled:cursor-not-allowed disabled:opacity-20"
                 >
                   <FiTrash2 />
                 </button>
@@ -648,17 +622,15 @@ export default function ExperienceForm({
           )}
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {errors.highlights ? (
               <ErrorMessage>
-                {
-                  errors.highlights
-                }
+                {errors.highlights}
               </ErrorMessage>
             ) : (
               <HelpText>
-                1–6 highlights. Keep them short.
+                Add between 1 and 6. Keep each one short.
               </HelpText>
             )}
           </div>
@@ -666,13 +638,11 @@ export default function ExperienceForm({
           <button
             type="button"
             disabled={
-              highlights.length >=
-              6
+              saving ||
+              highlights.length >= 6
             }
-            onClick={
-              addHighlight
-            }
-            className="flex items-center gap-2 text-[7px] uppercase tracking-[0.2em] text-[#D4AF37] transition hover:text-[#F4EFE6] disabled:cursor-not-allowed disabled:opacity-25"
+            onClick={addHighlight}
+            className="flex w-fit items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-[#D4AF37] transition hover:text-[#F4EFE6] disabled:cursor-not-allowed disabled:opacity-25"
           >
             <FiPlus />
 
@@ -681,99 +651,100 @@ export default function ExperienceForm({
         </div>
       </FormSection>
 
-      {/* Display Settings */}
+      {/* =====================================
+          DISPLAY SETTINGS
+      ===================================== */}
+
       <FormSection
         title="Display Settings"
-        description="Controls where this experience appears and whether it is a current role."
+        description="Choose where the role appears and whether it is a current position."
       >
         <div className="grid gap-5 md:grid-cols-2">
-          {/* Display Order */}
+          {/* =====================================
+              PLACEMENT
+          ===================================== */}
+
           <div>
-            <label
-              htmlFor="sortOrder"
-              className="mb-2 block text-[8px] uppercase tracking-[0.28em] text-[#D4AF37]"
-            >
-              Display Order
-            </label>
+            <p className="mb-2 text-[9px] uppercase tracking-[0.26em] text-[#D4AF37]">
+              Placement
+            </p>
 
-            <select
-              id="sortOrder"
-              value={sortOrder}
-              onChange={(
-                event
-              ) => {
-                setSortOrder(
-                  Number(
-                    event.target
-                      .value
-                  )
-                );
+            <div className="grid grid-cols-2 gap-2">
+              <PlacementButton
+                label="Top"
+                description="Show first"
+                active={
+                  placement === "top"
+                }
+                disabled={saving}
+                onClick={() =>
+                  setPlacement("top")
+                }
+              />
 
-                clearError(
-                  "sortOrder"
-                );
-              }}
-              className="h-11 w-full cursor-pointer border border-[#D4AF37]/15 bg-[#121212] px-4 text-sm text-[#F4EFE6] outline-none transition focus:border-[#D4AF37]/45"
-            >
-              {orderOptions.map(
-                (option) => (
-                  <option
-                    key={
-                      option.value
-                    }
-                    value={
-                      option.value
-                    }
-                  >
-                    {
-                      option.label
-                    }
-                  </option>
-                )
-              )}
-            </select>
+              <PlacementButton
+                label="Bottom"
+                description="Show last"
+                active={
+                  placement === "bottom"
+                }
+                disabled={saving}
+                onClick={() =>
+                  setPlacement("bottom")
+                }
+              />
+            </div>
 
             <HelpText>
-              First appears at the top of the Experience section.
+              Choose whether this experience appears at the top or bottom of the list.
             </HelpText>
           </div>
 
-          {/* Current */}
+          {/* =====================================
+              CURRENT POSITION
+          ===================================== */}
+
           <div>
-            <p className="mb-2 text-[8px] uppercase tracking-[0.28em] text-[#D4AF37]">
+            <p className="mb-2 text-[9px] uppercase tracking-[0.26em] text-[#D4AF37]">
               Position Status
             </p>
 
             <button
               type="button"
+              disabled={saving}
               onClick={() =>
                 setCurrent(
-                  (
-                    previous
-                  ) => !previous
+                  (previous) =>
+                    !previous
                 )
               }
-              className={`flex h-11 w-full items-center justify-between border px-4 text-left transition ${
+              className={`flex h-[58px] w-full items-center justify-between border px-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
                 current
-                  ? "border-[#D4AF37]/45 bg-[#D4AF37]/5"
-                  : "border-[#D4AF37]/15 bg-[#121212]"
+                  ? "border-[#D4AF37]/40 bg-[#D4AF37]/[0.05]"
+                  : "border-[#D4AF37]/15 bg-[#121212] hover:border-[#D4AF37]/25"
               }`}
             >
               <div>
-                <p className="text-xs text-[#F4EFE6]/70">
+                <p className="text-[13px] text-[#F4EFE6]/75">
                   Current Position
+                </p>
+
+                <p className="mt-1 text-[10px] text-[#F4EFE6]/28">
+                  {current
+                    ? "Currently working in this role"
+                    : "Past position"}
                 </p>
               </div>
 
               <div
-                className={`relative h-5 w-9 rounded-full transition ${
+                className={`relative h-5 w-9 shrink-0 rounded-full transition ${
                   current
                     ? "bg-[#D4AF37]"
                     : "bg-[#F4EFE6]/10"
                 }`}
               >
                 <span
-                  className={`absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-[#121212] transition ${
+                  className={`absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-[#121212] transition-all duration-200 ${
                     current
                       ? "left-[18px]"
                       : "left-[3px]"
@@ -783,33 +754,86 @@ export default function ExperienceForm({
             </button>
 
             <HelpText>
-              Turn this on if she currently works in this role.
+              Turn this on if Leila currently works in this role.
             </HelpText>
           </div>
         </div>
       </FormSection>
 
-      {/* Save */}
-      <div className="border-t border-[#D4AF37]/10 pt-6">
-        <button
-          type="submit"
-          disabled={saving}
-          className="group relative flex w-full items-center justify-center overflow-hidden border border-[#D4AF37]/40 bg-[#5B1E3A]/20 px-5 py-4 transition disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span className="absolute inset-0 translate-y-full bg-[#D4AF37] transition-transform duration-300 group-hover:translate-y-0" />
+      {/* =====================================
+          SAVE
+      ===================================== */}
 
-          <span className="relative text-[8px] uppercase tracking-[0.3em] text-[#D4AF37] transition group-hover:text-[#121212]">
-            {saving
-              ? "Saving Experience..."
-              : initialData?.id
-                ? "Update Experience"
-                : "Save Experience"}
-          </span>
-        </button>
+      <div className="border-t border-[#D4AF37]/10 pt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[10px] leading-5 text-[#F4EFE6]/25">
+            {editing
+              ? "Save changes to update the live experience section."
+              : "The new experience will appear on the portfolio after saving."}
+          </p>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="group relative flex min-h-[46px] w-full items-center justify-center gap-3 overflow-hidden border border-[#D4AF37]/40 bg-[#5B1E3A]/15 px-7 transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-[205px]"
+          >
+            {!saving && (
+              <span className="absolute inset-0 origin-left scale-x-0 bg-[#D4AF37] transition-transform duration-300 group-hover:scale-x-100" />
+            )}
+
+            {saving ? (
+              <>
+                <FiLoader className="relative animate-spin text-[15px] text-[#D4AF37]" />
+
+                <span className="relative text-[9px] uppercase tracking-[0.26em] text-[#D4AF37]">
+                  Saving...
+                </span>
+              </>
+            ) : (
+              <>
+                <FiCheck className="relative text-[14px] text-[#D4AF37] transition-colors group-hover:text-[#121212]" />
+
+                <span className="relative text-[9px] uppercase tracking-[0.26em] text-[#D4AF37] transition-colors group-hover:text-[#121212]">
+                  {editing
+                    ? "Update Experience"
+                    : "Save Experience"}
+                </span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* =====================================
+          SAVING OVERLAY
+      ===================================== */}
+
+      {saving && (
+        <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-[#0B0B0B]/30 backdrop-blur-[2px]">
+          <div className="flex items-center gap-4 border border-[#D4AF37]/20 bg-[#111111] px-6 py-4 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
+            <FiLoader className="animate-spin text-xl text-[#D4AF37]" />
+
+            <div>
+              <p className="font-serif text-[17px] text-[#F4EFE6]">
+                {editing
+                  ? "Updating Experience"
+                  : "Saving Experience"}
+              </p>
+
+              <p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-[#F4EFE6]/30">
+                Please wait
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
+
+/* =====================================
+   FORM SECTION
+===================================== */
 
 function FormSection({
   title,
@@ -823,11 +847,11 @@ function FormSection({
   return (
     <section className="border-b border-[#D4AF37]/10 pb-7">
       <div className="mb-5">
-        <h2 className="font-serif text-xl text-[#F4EFE6]">
+        <h2 className="font-serif text-[22px] text-[#F4EFE6]">
           {title}
         </h2>
 
-        <p className="mt-1 text-xs leading-5 text-[#F4EFE6]/35">
+        <p className="mt-1.5 text-[13px] leading-5 text-[#F4EFE6]/35">
           {description}
         </p>
       </div>
@@ -837,6 +861,10 @@ function FormSection({
   );
 }
 
+/* =====================================
+   TEXT FIELD
+===================================== */
+
 function Field({
   label,
   value,
@@ -845,16 +873,16 @@ function Field({
   help,
   error,
   required = false,
+  disabled = false,
 }: {
   label: string;
   value: string;
-  onChange: (
-    value: string
-  ) => void;
+  onChange: (value: string) => void;
   placeholder: string;
   help?: string;
   error?: string;
   required?: boolean;
+  disabled?: boolean;
 }) {
   const id = label
     .toLowerCase()
@@ -864,7 +892,7 @@ function Field({
     <div>
       <label
         htmlFor={id}
-        className="mb-2 block text-[8px] uppercase tracking-[0.28em] text-[#D4AF37]"
+        className="mb-2 block text-[9px] uppercase tracking-[0.26em] text-[#D4AF37]"
       >
         {label}
 
@@ -877,16 +905,13 @@ function Field({
 
       <input
         id={id}
+        disabled={disabled}
         value={value}
-        onChange={(
-          event
-        ) =>
-          onChange(
-            event.target.value
-          )
+        onChange={(event) =>
+          onChange(event.target.value)
         }
         placeholder={placeholder}
-        className={`h-11 w-full border bg-[#121212] px-4 text-sm outline-none transition ${
+        className={`h-11 w-full border bg-[#121212] px-4 text-[14px] text-[#F4EFE6]/80 outline-none transition placeholder:text-[#F4EFE6]/18 disabled:cursor-not-allowed disabled:opacity-50 ${
           error
             ? "border-red-500/60"
             : "border-[#D4AF37]/15 focus:border-[#D4AF37]/45"
@@ -906,13 +931,74 @@ function Field({
   );
 }
 
+/* =====================================
+   PLACEMENT BUTTON
+===================================== */
+
+function PlacementButton({
+  label,
+  description,
+  active,
+  disabled,
+  onClick,
+}: {
+  label: string;
+  description: string;
+  active: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={`relative flex min-h-[58px] items-center justify-between border px-4 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
+        active
+          ? "border-[#D4AF37]/45 bg-[#D4AF37]/[0.06]"
+          : "border-[#D4AF37]/15 bg-[#121212] hover:border-[#D4AF37]/30"
+      }`}
+    >
+      <div>
+        <p
+          className={`font-serif text-[16px] transition ${
+            active
+              ? "text-[#F4EFE6]"
+              : "text-[#F4EFE6]/55"
+          }`}
+        >
+          {label}
+        </p>
+
+        <p className="mt-0.5 text-[9px] uppercase tracking-[0.15em] text-[#F4EFE6]/25">
+          {description}
+        </p>
+      </div>
+
+      <div
+        className={`flex h-5 w-5 items-center justify-center border transition ${
+          active
+            ? "border-[#D4AF37] bg-[#D4AF37] text-[#121212]"
+            : "border-[#F4EFE6]/15 text-transparent"
+        }`}
+      >
+        <FiCheck className="text-[12px]" />
+      </div>
+    </button>
+  );
+}
+
+/* =====================================
+   ERROR MESSAGE
+===================================== */
+
 function ErrorMessage({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <p className="mt-2 flex items-center gap-1.5 text-[10px] leading-4 text-red-400">
+    <p className="mt-2 flex items-center gap-1.5 text-[11px] leading-4 text-red-400">
       <FiAlertCircle className="shrink-0" />
 
       {children}
@@ -920,13 +1006,17 @@ function ErrorMessage({
   );
 }
 
+/* =====================================
+   HELP TEXT
+===================================== */
+
 function HelpText({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <p className="mt-2 text-[9px] leading-4 text-[#F4EFE6]/25">
+    <p className="mt-2 text-[10px] leading-4 text-[#F4EFE6]/27">
       {children}
     </p>
   );

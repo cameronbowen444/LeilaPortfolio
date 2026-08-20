@@ -4,54 +4,93 @@ export const experienceSchema = z.object({
   company: z
     .string()
     .trim()
-    .min(2, "Company name must be at least 2 characters.")
-    .max(100, "Company name cannot be longer than 100 characters."),
+    .min(
+      2,
+      "Enter the company or organization name."
+    )
+    .max(
+      120,
+      "Company name is too long."
+    ),
 
   role: z
     .string()
     .trim()
-    .min(2, "Role must be at least 2 characters.")
-    .max(100, "Role cannot be longer than 100 characters."),
+    .min(
+      2,
+      "Enter the job title or role."
+    )
+    .max(
+      120,
+      "Role is too long."
+    ),
 
   location: z
     .string()
     .trim()
-    .max(100, "Location cannot be longer than 100 characters.")
+    .max(
+      120,
+      "Location is too long."
+    )
     .optional()
-    .or(z.literal("")),
+    .default(""),
 
   period: z
     .string()
     .trim()
-    .min(4, "Please enter a valid period.")
-    .max(50, "Period cannot be longer than 50 characters."),
+    .min(
+      4,
+      "Enter a valid time period."
+    )
+    .max(
+      80,
+      "Period is too long."
+    ),
 
   description: z
     .string()
     .trim()
-    .min(20, "Description should be at least 20 characters.")
-    .max(1000, "Description cannot exceed 1000 characters."),
+    .min(
+      20,
+      "Description must be at least 20 characters."
+    )
+    .max(
+      1000,
+      "Description cannot exceed 1000 characters."
+    ),
 
   highlights: z
     .array(
       z
         .string()
         .trim()
-        .min(2, "Highlight must be at least 2 characters.")
-        .max(80, "Highlight cannot exceed 80 characters.")
+        .min(
+          2,
+          "Highlights must be at least 2 characters."
+        )
+        .max(
+          80,
+          "Highlights cannot exceed 80 characters."
+        )
     )
-    .min(1, "Add at least one highlight.")
-    .max(6, "You can add up to 6 highlights."),
+    .min(
+      1,
+      "Add at least one highlight."
+    )
+    .max(
+      6,
+      "You can add up to 6 highlights."
+    ),
 
   current: z.boolean(),
 
-  sortOrder: z
-    .number()
-    .int()
-    .min(0)
-    .max(9),
+  placement: z.enum([
+    "top",
+    "bottom",
+  ]),
 });
 
-export type ExperienceInput = z.infer<
-  typeof experienceSchema
->;
+export type ExperienceInput =
+  z.infer<
+    typeof experienceSchema
+  >;

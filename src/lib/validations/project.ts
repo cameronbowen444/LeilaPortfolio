@@ -1,66 +1,164 @@
-import { z } from "zod";
+import {
+  z,
+} from "zod";
 
-export const projectCategories = [
-  "PRODUCTION",
-  "USU_MARKETING",
-  "PERSONAL",
-  "MOTION_GRAPHICS",
-] as const;
+export const projectSchema =
+  z.object({
+    /* =====================================
+       BASIC INFORMATION
+    ===================================== */
 
-export const projectSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(2, "Project title must be at least 2 characters.")
-    .max(150, "Project title cannot exceed 150 characters."),
+    title: z
+      .string()
+      .trim()
+      .min(
+        2,
+        "Enter a project title."
+      )
+      .max(
+        160,
+        "Project title is too long."
+      ),
 
-  category: z.enum(projectCategories),
+    category:
+      z.enum([
+        "PRODUCTION",
+        "USU_MARKETING",
+        "PERSONAL",
+        "MOTION_GRAPHICS",
+      ]),
 
-  year: z
-    .string()
-    .trim()
-    .max(30, "Year cannot exceed 30 characters.")
-    .optional()
-    .or(z.literal("")),
+    year: z
+      .string()
+      .trim()
+      .max(
+        20,
+        "Year is too long."
+      )
+      .optional()
+      .default(""),
 
-  description: z
-    .string()
-    .trim()
-    .min(20, "Description should be at least 20 characters.")
-    .max(1500, "Description cannot exceed 1500 characters."),
+    description:
+      z
+        .string()
+        .trim()
+        .min(
+          20,
+          "Add at least 20 characters describing the project."
+        )
+        .max(
+          1500,
+          "Description cannot exceed 1500 characters."
+        ),
 
-  coverImage: z
-    .string()
-    .trim()
-    .max(1000, "Cover image URL is too long.")
-    .optional()
-    .or(z.literal("")),
+    /* =====================================
+       ARTWORK / MEDIA
+    ===================================== */
 
-  oneSheets: z
-    .array(z.string().trim().max(120))
-    .max(10, "You can add up to 10 One Sheet items."),
+    coverImage:
+      z
+        .string()
+        .trim()
+        .optional()
+        .default(""),
 
-  outdoor: z
-    .array(z.string().trim().max(120))
-    .max(10, "You can add up to 10 Outdoor items."),
+    previewVideo:
+      z
+        .string()
+        .trim()
+        .optional()
+        .default(""),
 
-  international: z
-    .array(z.string().trim().max(120))
-    .max(10, "You can add up to 10 International items."),
+    videoPoster:
+      z
+        .string()
+        .trim()
+        .optional()
+        .default(""),
 
-  gallery: z
-    .array(z.string().trim().max(1000))
-    .max(30, "You can add up to 30 gallery images."),
+    gallery:
+      z
+        .array(
+          z.string()
+            .trim()
+            .min(1)
+        )
+        .max(
+          40,
+          "Too many gallery images."
+        )
+        .default([]),
 
-  sortOrder: z
-    .number()
-    .int()
-    .min(0)
-    .max(99),
+    /* =====================================
+       DELIVERABLES
+    ===================================== */
 
-  published: z.boolean(),
-});
+    oneSheets:
+      z
+        .array(
+          z.string()
+            .trim()
+            .min(1)
+            .max(
+              120,
+              "One Sheet label is too long."
+            )
+        )
+        .max(
+          20,
+          "Too many One Sheet entries."
+        )
+        .default([]),
 
-export type ProjectInput = z.infer<
-  typeof projectSchema
->;
+    outdoor:
+      z
+        .array(
+          z.string()
+            .trim()
+            .min(1)
+            .max(
+              120,
+              "Outdoor label is too long."
+            )
+        )
+        .max(
+          20,
+          "Too many Outdoor entries."
+        )
+        .default([]),
+
+    international:
+      z
+        .array(
+          z.string()
+            .trim()
+            .min(1)
+            .max(
+              120,
+              "International label is too long."
+            )
+        )
+        .max(
+          20,
+          "Too many International entries."
+        )
+        .default([]),
+
+    /* =====================================
+       DISPLAY SETTINGS
+    ===================================== */
+
+    placement:
+      z.enum([
+        "top",
+        "bottom",
+      ]),
+
+    published:
+      z.boolean(),
+  });
+
+export type ProjectInput =
+  z.infer<
+    typeof projectSchema
+  >;

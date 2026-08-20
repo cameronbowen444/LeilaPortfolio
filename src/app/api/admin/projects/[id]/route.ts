@@ -19,6 +19,10 @@ type Context = {
   }>;
 };
 
+/* =====================================
+   SLUG
+===================================== */
+
 function createSlug(
   title: string
 ) {
@@ -26,9 +30,19 @@ function createSlug(
     .toLowerCase()
     .trim()
     .replace(/['"]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(
+      /[^a-z0-9]+/g,
+      "-"
+    )
+    .replace(
+      /^-|-$/g,
+      ""
+    );
 }
+
+/* =====================================
+   UPDATE PROJECT
+===================================== */
 
 export async function PUT(
   request: Request,
@@ -41,7 +55,7 @@ export async function PUT(
     return NextResponse.json(
       {
         error:
-          "Unauthorized",
+          "You are not authorized to perform this action.",
       },
       {
         status: 401,
@@ -53,50 +67,9 @@ export async function PUT(
     const { id } =
       await context.params;
 
-    const body =
-      await request.json();
-
-    const result =
-      projectSchema.safeParse(
-        body
-      );
-
-    if (!result.success) {
-      const errors: Record<
-        string,
-        string
-      > = {};
-
-      for (
-        const issue of
-        result.error.issues
-      ) {
-        const field =
-          issue.path[0]?.toString();
-
-        if (
-          field &&
-          !errors[field]
-        ) {
-          errors[field] =
-            issue.message;
-        }
-      }
-
-      return NextResponse.json(
-        {
-          error:
-            "Some fields need attention.",
-          errors,
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    const data =
-      result.data;
+    /* =====================================
+       FIND EXISTING PROJECT
+    ===================================== */
 
     const existing =
       await prisma.project.findUnique({
@@ -117,6 +90,66 @@ export async function PUT(
       );
     }
 
+    const body =
+      await request.json();
+
+    /* =====================================
+       VALIDATE
+    ===================================== */
+
+    const result =
+      projectSchema.safeParse(
+        body
+      );
+
+    if (!result.success) {
+      const fieldErrors: Record<
+        string,
+        string
+      > = {};
+
+      for (
+        const issue of
+        result.error.issues
+      ) {
+        const field =
+          issue.path[0]?.toString();
+
+        if (
+          field &&
+          !fieldErrors[field]
+        ) {
+          fieldErrors[field] =
+            issue.message;
+        }
+      }
+
+      console.error(
+        "PROJECT VALIDATION FAILED:",
+        result.error.issues
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Some project fields need attention.",
+
+          errors:
+            fieldErrors,
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const data =
+      result.data;
+
+    /* =====================================
+       UPDATE SLUG IF TITLE CHANGED
+    ===================================== */
+
     let slug =
       existing.slug;
 
@@ -132,16 +165,22 @@ export async function PUT(
       slug =
         baseSlug;
 
-      let counter = 2;
+      let counter =
+        2;
 
       while (true) {
         const match =
           await prisma.project.findFirst({
             where: {
               slug,
-              NOT: {
-                id,
+
+              id: {
+                not: id,
               },
+            },
+
+            select: {
+              id: true,
             },
           });
 
@@ -155,6 +194,85 @@ export async function PUT(
         counter++;
       }
     }
+
+    /* =====================================
+       CALCULATE NEW ORDER
+    ===================================== */
+
+    let sortOrder =
+      existing.sortOrder;
+
+    if (
+      data.placement ===
+      "top"
+    ) {
+      const firstProject =
+        await prisma.project.findFirst({
+          where: {
+            category:
+              data.category,
+
+            id: {
+              not: id,
+            },
+          },
+
+          orderBy: {
+            sortOrder:
+              "asc",
+          },
+
+          select: {
+            sortOrder:
+              true,
+          },
+        });
+
+      sortOrder =
+        firstProject ===
+        null
+          ? 0
+          : firstProject.sortOrder -
+            1;
+    }
+
+    if (
+      data.placement ===
+      "bottom"
+    ) {
+      const lastProject =
+        await prisma.project.findFirst({
+          where: {
+            category:
+              data.category,
+
+            id: {
+              not: id,
+            },
+          },
+
+          orderBy: {
+            sortOrder:
+              "desc",
+          },
+
+          select: {
+            sortOrder:
+              true,
+          },
+        });
+
+      sortOrder =
+        lastProject ===
+        null
+          ? 0
+          : lastProject.sortOrder +
+            1;
+    }
+
+    /* =====================================
+       UPDATE PROJECT
+    ===================================== */
 
     const project =
       await prisma.project.update({
@@ -182,6 +300,14 @@ export async function PUT(
             data.coverImage ||
             null,
 
+          previewVideo:
+            data.previewVideo ||
+            null,
+
+          videoPoster:
+            data.videoPoster ||
+            null,
+
           oneSheets:
             data.oneSheets,
 
@@ -194,15 +320,25 @@ export async function PUT(
           gallery:
             data.gallery,
 
-          sortOrder:
-            data.sortOrder,
+          sortOrder,
 
           published:
             data.published,
         },
       });
 
-    revalidatePath("/");
+    /* =====================================
+       REVALIDATE
+    ===================================== */
+
+    revalidatePath(
+      "/"
+    );
+
+    revalidatePath(
+      "/admin"
+    );
+
     revalidatePath(
       "/admin/projects"
     );
@@ -216,10 +352,21 @@ export async function PUT(
       error
     );
 
+    const details =
+      error instanceof Error
+        ? error.message
+        : "Unknown server error";
+
     return NextResponse.json(
       {
         error:
           "Failed to update project.",
+
+        details:
+          process.env.NODE_ENV ===
+          "development"
+            ? details
+            : undefined,
       },
       {
         status: 500,
@@ -227,6 +374,10 @@ export async function PUT(
     );
   }
 }
+
+/* =====================================
+   DELETE PROJECT
+===================================== */
 
 export async function DELETE(
   request: Request,
@@ -239,7 +390,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         error:
-          "Unauthorized",
+          "You are not authorized to perform this action.",
       },
       {
         status: 401,
@@ -251,13 +402,55 @@ export async function DELETE(
     const { id } =
       await context.params;
 
+    /* =====================================
+       CHECK PROJECT EXISTS
+    ===================================== */
+
+    const existing =
+      await prisma.project.findUnique({
+        where: {
+          id,
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!existing) {
+      return NextResponse.json(
+        {
+          error:
+            "Project not found.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    /* =====================================
+       DELETE
+    ===================================== */
+
     await prisma.project.delete({
       where: {
         id,
       },
     });
 
-    revalidatePath("/");
+    /* =====================================
+       REVALIDATE
+    ===================================== */
+
+    revalidatePath(
+      "/"
+    );
+
+    revalidatePath(
+      "/admin"
+    );
+
     revalidatePath(
       "/admin/projects"
     );
@@ -271,10 +464,21 @@ export async function DELETE(
       error
     );
 
+    const details =
+      error instanceof Error
+        ? error.message
+        : "Unknown server error";
+
     return NextResponse.json(
       {
         error:
           "Failed to delete project.",
+
+        details:
+          process.env.NODE_ENV ===
+          "development"
+            ? details
+            : undefined,
       },
       {
         status: 500,

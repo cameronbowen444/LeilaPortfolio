@@ -3,10 +3,7 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/admin";
-
-import {
-  experienceSchema,
-} from "@/lib/validations/experience";
+import { experienceSchema } from "@/lib/validations/experience";
 
 export async function POST(
   request: Request
@@ -28,10 +25,12 @@ export async function POST(
   try {
     const body = await request.json();
 
+    /* =====================================
+       VALIDATE
+    ===================================== */
+
     const result =
-      experienceSchema.safeParse(
-        body
-      );
+      experienceSchema.safeParse(body);
 
     if (!result.success) {
       const fieldErrors: Record<
@@ -61,7 +60,6 @@ export async function POST(
         {
           error:
             "Some fields need attention before this experience can be saved.",
-
           errors: fieldErrors,
         },
         {
@@ -72,11 +70,54 @@ export async function POST(
 
     const data = result.data;
 
+    /* =====================================
+       CALCULATE DISPLAY ORDER
+    ===================================== */
+
+    let sortOrder = 0;
+
+    if (data.placement === "top") {
+      const firstExperience =
+        await prisma.experience.findFirst({
+          orderBy: {
+            sortOrder: "asc",
+          },
+
+          select: {
+            sortOrder: true,
+          },
+        });
+
+      sortOrder =
+        firstExperience === null
+          ? 0
+          : firstExperience.sortOrder - 1;
+    } else {
+      const lastExperience =
+        await prisma.experience.findFirst({
+          orderBy: {
+            sortOrder: "desc",
+          },
+
+          select: {
+            sortOrder: true,
+          },
+        });
+
+      sortOrder =
+        lastExperience === null
+          ? 0
+          : lastExperience.sortOrder + 1;
+    }
+
+    /* =====================================
+       CREATE EXPERIENCE
+    ===================================== */
+
     const experience =
       await prisma.experience.create({
         data: {
           company: data.company,
-
           role: data.role,
 
           location:
@@ -93,15 +134,16 @@ export async function POST(
           current:
             data.current,
 
-          sortOrder:
-            data.sortOrder,
+          sortOrder,
         },
       });
 
+    /* =====================================
+       REVALIDATE
+    ===================================== */
+
     revalidatePath("/");
-    revalidatePath(
-      "/admin"
-    );
+    revalidatePath("/admin");
     revalidatePath(
       "/admin/experience"
     );

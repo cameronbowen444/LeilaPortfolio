@@ -1,8 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { FiX, FiArrowUpRight } from "react-icons/fi";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  AnimatePresence,
+  motion,
+} from "motion/react";
+
+import {
+  FiArrowUpRight,
+  FiFilm,
+  FiImage,
+  FiLoader,
+  FiPlay,
+  FiX,
+} from "react-icons/fi";
 
 type DatabaseCategory =
   | "PRODUCTION"
@@ -18,29 +34,19 @@ type Category =
 
 export type Project = {
   id: string;
-
   title: string;
-
   slug: string;
-
   category: DatabaseCategory;
-
   year: string | null;
-
   description: string;
-
   coverImage: string | null;
-
+  previewVideo: string | null;
+  videoPoster: string | null;
   oneSheets: string[];
-
   outdoor: string[];
-
   international: string[];
-
   gallery: string[];
-
   sortOrder: number;
-
   published: boolean;
 };
 
@@ -60,41 +66,45 @@ const categoryMap: Record<
   Category
 > = {
   PRODUCTION: "Production",
-
   USU_MARKETING: "USU Marketing",
-
   PERSONAL: "Personal",
-
   MOTION_GRAPHICS: "Motion Graphics",
 };
 
 export default function Projects({
   projects,
 }: ProjectsProps) {
-  const [activeCategory, setActiveCategory] =
-    useState<Category>("Production");
+  const [
+    activeCategory,
+    setActiveCategory,
+  ] = useState<Category>(
+    "Production"
+  );
 
   const [
     selectedProject,
     setSelectedProject,
-  ] = useState<Project | null>(null);
-
-  const filteredProjects = projects.filter(
-    (project) =>
-      categoryMap[project.category] ===
-      activeCategory
+  ] = useState<Project | null>(
+    null
   );
 
+  const filteredProjects =
+    projects.filter(
+      (project) =>
+        categoryMap[
+          project.category
+        ] === activeCategory
+    );
+
   useEffect(() => {
-    if (selectedProject) {
-      document.body.style.overflow =
-        "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow =
+      selectedProject
+        ? "hidden"
+        : "";
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        "";
     };
   }, [selectedProject]);
 
@@ -104,25 +114,14 @@ export default function Projects({
         id="projects"
         className="relative overflow-hidden bg-[#121212] px-5 py-20 text-[#F4EFE6] sm:px-7 md:px-10 lg:px-12 lg:py-24"
       >
-        {/* =========================
-            BACKGROUND
-        ========================== */}
-
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -left-40 top-10 h-[400px] w-[400px] rounded-full bg-[#5B1E3A]/15 blur-[150px]" />
-
           <div className="absolute -right-40 bottom-0 h-[400px] w-[400px] rounded-full bg-[#1D3D44]/10 blur-[150px]" />
         </div>
-
-        {/* top line */}
 
         <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent" />
 
         <div className="relative mx-auto max-w-[1320px]">
-          {/* =========================
-              HEADING
-          ========================== */}
-
           <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="mb-4 flex items-center gap-3">
@@ -143,14 +142,10 @@ export default function Projects({
 
             <p className="max-w-[420px] text-sm leading-6 text-[#F4EFE6]/50 md:text-right">
               A selection of entertainment,
-              marketing, personal, and motion
-              design work.
+              marketing, personal, and
+              motion design work.
             </p>
           </div>
-
-          {/* =========================
-              CATEGORY NAV
-          ========================== */}
 
           <div className="mb-10 overflow-x-auto border-y border-[#D4AF37]/15">
             <div className="flex min-w-max items-center gap-8 py-4 md:gap-10">
@@ -164,8 +159,10 @@ export default function Projects({
                     projects.filter(
                       (project) =>
                         categoryMap[
-                          project.category
-                        ] === category
+                          project
+                            .category
+                        ] ===
+                        category
                     ).length;
 
                   return (
@@ -214,10 +211,6 @@ export default function Projects({
             </div>
           </div>
 
-          {/* =========================
-              EMPTY CATEGORY
-          ========================== */}
-
           {filteredProjects.length ===
             0 && (
             <motion.div
@@ -244,15 +237,11 @@ export default function Projects({
             </motion.div>
           )}
 
-          {/* =========================
-              PROJECT GRID
-          ========================== */}
-
           {filteredProjects.length >
             0 && (
             <motion.div
               layout
-              className="grid grid-cols-1 gap-5 md:grid-cols-2"
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             >
               <AnimatePresence mode="popLayout">
                 {filteredProjects.map(
@@ -262,12 +251,10 @@ export default function Projects({
                   ) => (
                     <motion.button
                       layout
-                      key={
-                        project.id
-                      }
+                      key={project.id}
                       initial={{
                         opacity: 0,
-                        y: 20,
+                        y: 18,
                       }}
                       animate={{
                         opacity: 1,
@@ -275,102 +262,71 @@ export default function Projects({
                       }}
                       exit={{
                         opacity: 0,
-                        y: 20,
+                        y: 18,
                       }}
                       transition={{
                         duration:
-                          0.45,
+                          0.4,
                         delay:
                           index *
-                          0.05,
+                          0.04,
                       }}
                       onClick={() =>
                         setSelectedProject(
                           project
                         )
                       }
-                      className="group relative overflow-hidden border border-[#D4AF37]/10 bg-[#0D0D0D] text-left"
+                      className="group text-left"
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden">
-                        {project.coverImage ? (
-                          <img
-                            src={
-                              project.coverImage
-                            }
-                            alt={
-                              project.title
-                            }
-                            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-                          />
-                        ) : (
-                          <ProjectPlaceholder
-                            title={
-                              project.title
-                            }
-                          />
-                        )}
+                      <div className="relative aspect-[2/3] overflow-hidden border border-[#D4AF37]/10 bg-[#0D0D0D]">
+                        <ProjectCardMedia
+                          project={
+                            project
+                          }
+                        />
 
-                        {/* Hover shadow */}
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#121212]/95 via-[#5B1E3A]/20 to-transparent opacity-40 transition-opacity duration-500 group-hover:opacity-90" />
-
-                        {/* border */}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0D0D0D]/95 via-transparent to-black/10" />
 
                         <div className="pointer-events-none absolute inset-3 border border-[#F4EFE6]/0 transition-colors duration-500 group-hover:border-[#D4AF37]/30" />
 
-                        {/* year */}
+                        {project.category ===
+                          "MOTION_GRAPHICS" &&
+                          project.previewVideo && (
+                            <div className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#D4AF37]/30 bg-[#0D0D0D]/75 text-[#D4AF37] backdrop-blur">
+                              <FiPlay className="ml-0.5 text-xs" />
+                            </div>
+                          )}
 
-                        {project.year && (
-                          <div className="absolute left-5 top-5">
-                            <p className="text-[8px] uppercase tracking-[0.35em] text-[#F4EFE6]/60">
+                        <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-16">
+                          <div className="mb-2 flex items-center justify-between gap-4">
+                            <p className="text-[7px] uppercase tracking-[0.3em] text-[#D4AF37]">
                               {
-                                project.year
+                                categoryMap[
+                                  project
+                                    .category
+                                ]
                               }
                             </p>
+
+                            {project.year && (
+                              <span className="text-[7px] tracking-[0.22em] text-[#F4EFE6]/35">
+                                {
+                                  project.year
+                                }
+                              </span>
+                            )}
                           </div>
-                        )}
 
-                        {/* bottom title */}
-
-                        <div className="absolute bottom-5 right-5 max-w-[80%] translate-y-3 text-right opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                          <p className="mb-2 text-[8px] uppercase tracking-[0.35em] text-[#D4AF37]">
-                            {
-                              categoryMap[
-                                project
-                                  .category
-                              ]
-                            }
-                          </p>
-
-                          <h3 className="font-serif text-2xl italic text-[#F4EFE6] sm:text-3xl">
+                          <h3 className="font-serif text-xl leading-tight italic sm:text-2xl">
                             {
                               project.title
                             }
                           </h3>
 
-                          <div className="mt-3 flex items-center justify-end gap-2 text-[8px] uppercase tracking-[0.28em] text-[#F4EFE6]/60">
+                          <div className="mt-3 flex items-center gap-2 text-[7px] uppercase tracking-[0.28em] text-[#F4EFE6]/40 transition-colors group-hover:text-[#D4AF37]">
                             View Project
                             <FiArrowUpRight />
                           </div>
-                        </div>
-
-                        {/* Mobile information */}
-
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#121212] via-[#121212]/80 to-transparent px-5 pb-5 pt-16 md:hidden">
-                          <p className="text-[7px] uppercase tracking-[0.3em] text-[#D4AF37]">
-                            {
-                              categoryMap[
-                                project
-                                  .category
-                              ]
-                            }
-                          </p>
-
-                          <p className="mt-1 font-serif text-xl italic">
-                            {
-                              project.title
-                            }
-                          </p>
                         </div>
                       </div>
                     </motion.button>
@@ -381,10 +337,6 @@ export default function Projects({
           )}
         </div>
       </section>
-
-      {/* =========================
-          PROJECT MODAL
-      ========================== */}
 
       <AnimatePresence>
         {selectedProject && (
@@ -404,9 +356,34 @@ export default function Projects({
   );
 }
 
-/* =====================================
-   MODAL
-===================================== */
+function ProjectCardMedia({
+  project,
+}: {
+  project: Project;
+}) {
+  const source =
+    project.coverImage ||
+    project.videoPoster;
+
+  if (!source) {
+    return (
+      <ProjectPlaceholder
+        title={
+          project.title
+        }
+      />
+    );
+  }
+
+  return (
+    <LoadedImage
+      src={source}
+      alt={project.title}
+      className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+      wrapperClassName="absolute inset-0 flex items-center justify-center bg-[#0B0B0B]"
+    />
+  );
+}
 
 function ProjectModal({
   project,
@@ -424,6 +401,10 @@ function ProjectModal({
   const hasGallery =
     project.gallery.length > 0;
 
+  const isMotion =
+    project.category ===
+    "MOTION_GRAPHICS";
+
   return (
     <motion.div
       initial={{
@@ -435,14 +416,14 @@ function ProjectModal({
       exit={{
         opacity: 0,
       }}
-      className="fixed inset-0 z-[100] bg-black/85 px-3 py-3 backdrop-blur-md sm:px-6 sm:py-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/88 p-3 backdrop-blur-md sm:p-5"
       onClick={onClose}
     >
       <motion.div
         initial={{
           opacity: 0,
-          y: 40,
-          scale: 0.98,
+          y: 28,
+          scale: 0.985,
         }}
         animate={{
           opacity: 1,
@@ -451,11 +432,11 @@ function ProjectModal({
         }}
         exit={{
           opacity: 0,
-          y: 30,
-          scale: 0.98,
+          y: 20,
+          scale: 0.985,
         }}
         transition={{
-          duration: 0.4,
+          duration: 0.35,
           ease: [
             0.22,
             1,
@@ -466,19 +447,21 @@ function ProjectModal({
         onClick={(event) =>
           event.stopPropagation()
         }
-        className="relative mx-auto flex h-full max-w-[1250px] flex-col overflow-hidden border border-[#D4AF37]/20 bg-[#101010] text-[#F4EFE6]"
+        className="relative mx-auto flex h-[calc(100dvh-24px)] w-full max-w-[1120px] flex-col overflow-hidden border border-[#D4AF37]/20 bg-[#101010] text-[#F4EFE6] shadow-[0_30px_120px_rgba(0,0,0,0.55)] sm:h-[calc(100dvh-40px)]"
       >
-        {/* =========================
-            STATIC HEADER
-        ========================== */}
-
-        <div className="relative z-50 flex shrink-0 items-center justify-between border-b border-[#D4AF37]/15 bg-[#101010]/95 px-5 py-4 backdrop-blur-xl sm:px-8 sm:py-5">
-          <div>
-            <p className="mb-1 text-[8px] uppercase tracking-[0.4em] text-[#D4AF37]">
-              Project Details
+        <div className="relative z-50 flex shrink-0 items-center justify-between border-b border-[#D4AF37]/15 bg-[#101010] px-5 py-4 sm:px-7">
+          <div className="min-w-0 pr-5">
+            <p className="mb-1 text-[7px] uppercase tracking-[0.38em] text-[#D4AF37]">
+              {
+                categoryMap[
+                  project.category
+                ]
+              }
+              {project.year &&
+                ` • ${project.year}`}
             </p>
 
-            <p className="font-serif text-lg sm:text-xl">
+            <p className="truncate font-serif text-lg sm:text-xl">
               {project.title}
             </p>
           </div>
@@ -487,245 +470,172 @@ function ProjectModal({
             type="button"
             onClick={onClose}
             aria-label="Close project"
-            className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#F4EFE6]/30 text-xl transition-all duration-300 hover:rotate-90 hover:border-[#D4AF37] hover:text-[#D4AF37] sm:h-12 sm:w-12"
+            className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#F4EFE6]/25 text-lg transition hover:rotate-90 hover:border-[#D4AF37] hover:text-[#D4AF37]"
           >
             <FiX />
           </button>
         </div>
 
-        {/* =========================
-            SCROLLABLE CONTENT
-        ========================== */}
-
-        <div className="flex-1 overflow-y-auto overscroll-contain">
-          <div className="px-5 py-6 sm:px-8 sm:py-8">
-            {/* HERO IMAGE */}
-
-            {project.coverImage ? (
-              <div className="relative overflow-hidden border border-[#D4AF37]/15">
-                <img
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="p-5 sm:p-7 lg:p-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+            <div className="lg:sticky lg:top-[96px]">
+              {isMotion &&
+              project.previewVideo ? (
+                <LoadedVideo
+                  src={
+                    project.previewVideo
+                  }
+                  poster={
+                    project.videoPoster ||
+                    project.coverImage ||
+                    undefined
+                  }
+                  title={
+                    project.title
+                  }
+                />
+              ) : project.coverImage ? (
+                <LoadedImage
                   src={
                     project.coverImage
                   }
                   alt={
                     project.title
                   }
-                  className="max-h-[670px] w-full object-cover"
+                  className="max-h-[72vh] w-full object-contain"
+                  wrapperClassName="flex min-h-[420px] items-center justify-center overflow-hidden border border-[#D4AF37]/15 bg-[#090909] p-3 sm:min-h-[520px]"
                 />
-
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#121212]/45 via-transparent to-transparent" />
-              </div>
-            ) : (
-              <div className="relative aspect-[16/8] overflow-hidden border border-[#D4AF37]/15">
-                <ProjectPlaceholder
-                  title={
-                    project.title
-                  }
-                />
-              </div>
-            )}
-
-            {/* =========================
-                MAIN DETAILS
-            ========================== */}
-
-            <div className="py-10 md:py-14">
-              <div className="grid gap-8 md:grid-cols-[1fr_0.8fr] md:items-start">
-                <div>
-                  <p className="mb-3 text-[8px] uppercase tracking-[0.4em] text-[#D4AF37]">
-                    {
-                      categoryMap[
-                        project
-                          .category
-                      ]
+              ) : (
+                <div className="relative aspect-[2/3] overflow-hidden border border-[#D4AF37]/15">
+                  <ProjectPlaceholder
+                    title={
+                      project.title
                     }
-
-                    {project.year &&
-                      ` • ${project.year}`}
-                  </p>
-
-                  <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl">
-                    {project.title}
-                  </h2>
+                  />
                 </div>
+              )}
 
-                <p className="text-sm leading-7 text-[#F4EFE6]/60 sm:text-[15px]">
-                  {
-                    project.description
-                  }
-                </p>
-              </div>
+              {isMotion &&
+                project.previewVideo && (
+                  <div className="mt-3 flex items-center gap-2 text-[8px] uppercase tracking-[0.28em] text-[#F4EFE6]/30">
+                    <FiFilm className="text-[#D4AF37]" />
+                    Motion Preview
+                  </div>
+                )}
             </div>
 
-            {/* =========================
-                DELIVERABLES
-            ========================== */}
+            <div>
+              <p className="mb-3 text-[8px] uppercase tracking-[0.4em] text-[#D4AF37]">
+                Project Details
+              </p>
 
-            {hasDeliverables && (
-              <div
-                className={`grid gap-4 ${
-                  [
-                    project
-                      .oneSheets,
-                    project.outdoor,
-                    project
-                      .international,
-                  ].filter(
-                    (items) =>
-                      items.length >
-                      0
-                  ).length === 1
-                    ? "md:grid-cols-1"
-                    : [
-                          project
-                            .oneSheets,
-                          project
-                            .outdoor,
-                          project
-                            .international,
-                        ].filter(
-                          (
-                            items
-                          ) =>
-                            items.length >
-                            0
-                        ).length ===
-                        2
-                      ? "md:grid-cols-2"
-                      : "md:grid-cols-3"
-                }`}
-              >
-                {project.oneSheets
-                  .length >
-                  0 && (
-                  <DetailList
-                    title="One Sheets"
-                    items={
-                      project.oneSheets
-                    }
-                  />
-                )}
+              <h2 className="font-serif text-4xl leading-[0.98] sm:text-5xl lg:text-[58px]">
+                {project.title}
+              </h2>
 
-                {project.outdoor
-                  .length >
-                  0 && (
-                  <DetailList
-                    title="Outdoor"
-                    items={
-                      project.outdoor
-                    }
-                  />
-                )}
+              <p className="mt-6 max-w-[620px] text-[14px] leading-7 text-[#F4EFE6]/58 sm:text-[15px]">
+                {project.description}
+              </p>
 
-                {project
-                  .international
-                  .length >
-                  0 && (
-                  <DetailList
-                    title="International"
-                    items={
-                      project
-                        .international
-                    }
-                  />
-                )}
-              </div>
-            )}
+              {hasDeliverables && (
+                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                  {project.oneSheets
+                    .length > 0 && (
+                    <DetailList
+                      title="One Sheets"
+                      items={
+                        project.oneSheets
+                      }
+                    />
+                  )}
 
-            {/* =========================
-                ADDITIONAL WORK
-            ========================== */}
+                  {project.outdoor
+                    .length > 0 && (
+                    <DetailList
+                      title="Outdoor"
+                      items={
+                        project.outdoor
+                      }
+                    />
+                  )}
 
-            {hasGallery && (
-              <div className="mt-14 border-t border-[#D4AF37]/15 pt-10">
-                <div className="mb-7 flex items-end justify-between gap-6">
-                  <div>
-                    <p className="mb-2 text-[8px] uppercase tracking-[0.4em] text-[#D4AF37]">
-                      Project Gallery
-                    </p>
-
-                    <h3 className="font-serif text-3xl sm:text-4xl">
-                      Additional
-                      Work
-                    </h3>
-                  </div>
-
-                  <p className="hidden text-[8px] uppercase tracking-[0.35em] text-[#725563] sm:block">
-                    Explore the
-                    campaign
-                  </p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  {project.gallery.map(
-                    (
-                      image,
-                      index
-                    ) => (
-                      <motion.div
-                        key={`${image}-${index}`}
-                        initial={{
-                          opacity:
-                            0,
-                          y: 20,
-                        }}
-                        whileInView={{
-                          opacity:
-                            1,
-                          y: 0,
-                        }}
-                        viewport={{
-                          once: true,
-                          amount:
-                            0.15,
-                        }}
-                        transition={{
-                          duration:
-                            0.5,
-                          delay:
-                            index *
-                            0.05,
-                        }}
-                        className={`overflow-hidden border border-[#D4AF37]/10 ${
-                          index %
-                            3 ===
-                          0
-                            ? "md:col-span-2"
-                            : ""
-                        }`}
-                      >
-                        <img
-                          src={
-                            image
-                          }
-                          alt={`${project.title} artwork ${
-                            index +
-                            1
-                          }`}
-                          className={`w-full object-cover ${
-                            index %
-                              3 ===
-                            0
-                              ? "max-h-[700px]"
-                              : "h-full min-h-[320px]"
-                          }`}
-                        />
-                      </motion.div>
-                    )
+                  {project
+                    .international
+                    .length > 0 && (
+                    <DetailList
+                      title="International"
+                      items={
+                        project
+                          .international
+                      }
+                    />
                   )}
                 </div>
-              </div>
-            )}
-
-            {/* END */}
-
-            <div className="mt-14 flex items-center justify-center gap-4 pb-5">
-              <span className="h-px w-12 bg-[#D4AF37]/30" />
-
-              <span className="h-2 w-2 rotate-45 border border-[#D4AF37]" />
-
-              <span className="h-px w-12 bg-[#D4AF37]/30" />
+              )}
             </div>
+          </div>
+
+          {hasGallery && (
+            <div className="mt-10 border-t border-[#D4AF37]/15 pt-8 sm:mt-12">
+              <div className="mb-6">
+                <p className="mb-2 text-[8px] uppercase tracking-[0.4em] text-[#D4AF37]">
+                  Project Gallery
+                </p>
+
+                <h3 className="font-serif text-3xl sm:text-4xl">
+                  Additional Work
+                </h3>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {project.gallery.map(
+                  (
+                    image,
+                    index
+                  ) => (
+                    <motion.div
+                      key={`${image}-${index}`}
+                      initial={{
+                        opacity: 0,
+                        y: 16,
+                      }}
+                      whileInView={{
+                        opacity: 1,
+                        y: 0,
+                      }}
+                      viewport={{
+                        once: true,
+                        amount: 0.12,
+                      }}
+                      transition={{
+                        duration: 0.4,
+                        delay:
+                          index *
+                          0.035,
+                      }}
+                      className="flex min-h-[280px] items-center justify-center overflow-hidden border border-[#D4AF37]/10 bg-[#090909] p-2"
+                    >
+                      <LoadedImage
+                        src={image}
+                        alt={`${project.title} artwork ${
+                          index + 1
+                        }`}
+                        className="max-h-[520px] w-full object-contain"
+                        wrapperClassName="flex h-full w-full items-center justify-center"
+                      />
+                    </motion.div>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-12 flex items-center justify-center gap-4 pb-2">
+            <span className="h-px w-12 bg-[#D4AF37]/30" />
+            <span className="h-2 w-2 rotate-45 border border-[#D4AF37]" />
+            <span className="h-px w-12 bg-[#D4AF37]/30" />
+          </div>
           </div>
         </div>
       </motion.div>
@@ -733,9 +643,180 @@ function ProjectModal({
   );
 }
 
-/* =====================================
-   DETAIL LIST
-===================================== */
+function LoadedImage({
+  src,
+  alt,
+  className,
+  wrapperClassName,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  wrapperClassName?: string;
+}) {
+  const imageRef =
+    useRef<HTMLImageElement | null>(
+      null
+    );
+
+  const [
+    loaded,
+    setLoaded,
+  ] = useState(false);
+
+  const [
+    failed,
+    setFailed,
+  ] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+    setFailed(false);
+
+    const image =
+      imageRef.current;
+
+    if (
+      image?.complete &&
+      image.naturalWidth > 0
+    ) {
+      setLoaded(true);
+    }
+  }, [src]);
+
+  return (
+    <div
+      className={`relative ${
+        wrapperClassName || ""
+      }`}
+    >
+      <AnimatePresence>
+        {!loaded && !failed && (
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+            className="absolute inset-0 z-10 flex items-center justify-center bg-[#0D0D0D]"
+          >
+            <div className="flex flex-col items-center gap-3">
+              <FiLoader className="animate-spin text-lg text-[#D4AF37]" />
+
+              <span className="text-[7px] uppercase tracking-[0.3em] text-[#F4EFE6]/25">
+                Loading Artwork
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {failed && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0D0D0D] px-6 text-center">
+          <div>
+            <FiImage className="mx-auto text-xl text-[#D4AF37]/50" />
+
+            <p className="mt-3 text-[8px] uppercase tracking-[0.28em] text-[#F4EFE6]/30">
+              Artwork unavailable
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={imageRef}
+        src={src}
+        alt={alt}
+        onLoad={() => {
+          setLoaded(true);
+          setFailed(false);
+        }}
+        onError={() => {
+          setLoaded(false);
+          setFailed(true);
+
+          console.error(
+            "PROJECT IMAGE FAILED TO LOAD:",
+            src
+          );
+        }}
+        className={`${className} transition-opacity duration-500 ${
+          loaded
+            ? "opacity-100"
+            : "opacity-0"
+        }`}
+      />
+    </div>
+  );
+}
+
+function LoadedVideo({
+  src,
+  poster,
+  title,
+}: {
+  src: string;
+  poster?: string;
+  title: string;
+}) {
+  const [
+    loaded,
+    setLoaded,
+  ] = useState(false);
+
+  return (
+    <div className="relative flex min-h-[320px] items-center justify-center overflow-hidden border border-[#D4AF37]/15 bg-black sm:min-h-[420px]">
+      <AnimatePresence>
+        {!loaded && (
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            exit={{
+              opacity: 0,
+            }}
+            className="absolute inset-0 z-10 flex items-center justify-center bg-[#0B0B0B]"
+          >
+            <div className="flex flex-col items-center gap-3">
+              <FiLoader className="animate-spin text-xl text-[#D4AF37]" />
+              <span className="text-[7px] uppercase tracking-[0.3em] text-[#F4EFE6]/25">
+                Loading Motion
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <video
+        src={src}
+        poster={poster}
+        controls
+        playsInline
+        preload="metadata"
+        onLoadedData={() =>
+          setLoaded(true)
+        }
+        onCanPlay={() =>
+          setLoaded(true)
+        }
+        aria-label={`${title} motion preview`}
+        className={`max-h-[72vh] w-full object-contain transition-opacity duration-500 ${
+          loaded
+            ? "opacity-100"
+            : "opacity-0"
+        }`}
+      />
+    </div>
+  );
+}
 
 function DetailList({
   title,
@@ -745,12 +826,12 @@ function DetailList({
   items: string[];
 }) {
   return (
-    <div className="border border-[#D4AF37]/15 bg-[#171414] p-6 sm:p-7">
-      <p className="mb-5 text-[9px] uppercase tracking-[0.4em] text-[#D4AF37]">
+    <div className="border border-[#D4AF37]/12 bg-[#171414] p-5">
+      <p className="mb-4 text-[8px] uppercase tracking-[0.35em] text-[#D4AF37]">
         {title}
       </p>
 
-      <ul className="space-y-4">
+      <ul className="space-y-3">
         {items.map(
           (
             item,
@@ -758,13 +839,10 @@ function DetailList({
           ) => (
             <li
               key={`${item}-${index}`}
-              className="flex items-start gap-3 text-sm leading-6 text-[#F4EFE6]/65"
+              className="flex items-start gap-3 text-[13px] leading-5 text-[#F4EFE6]/60"
             >
-              <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rotate-45 bg-[#7E2A5A]" />
-
-              <span>
-                {item}
-              </span>
+              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rotate-45 bg-[#7E2A5A]" />
+              <span>{item}</span>
             </li>
           )
         )}
@@ -772,10 +850,6 @@ function DetailList({
     </div>
   );
 }
-
-/* =====================================
-   NO IMAGE PLACEHOLDER
-===================================== */
 
 function ProjectPlaceholder({
   title,
@@ -785,10 +859,9 @@ function ProjectPlaceholder({
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-[#171414]">
       <div className="absolute left-[15%] top-[20%] h-[180px] w-[180px] rounded-full bg-[#5B1E3A]/20 blur-[80px]" />
-
       <div className="absolute bottom-[10%] right-[12%] h-[160px] w-[160px] rounded-full bg-[#D4AF37]/5 blur-[80px]" />
 
-      <div className="relative text-center">
+      <div className="relative px-6 text-center">
         <div className="mx-auto mb-4 h-8 w-px bg-gradient-to-b from-transparent via-[#D4AF37]/50 to-transparent" />
 
         <p className="text-[7px] uppercase tracking-[0.4em] text-[#D4AF37]/50">

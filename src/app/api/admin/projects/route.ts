@@ -13,6 +13,10 @@ import {
   projectSchema,
 } from "@/lib/validations/project";
 
+/* =====================================
+   SLUG
+===================================== */
+
 function createSlug(
   title: string
 ) {
@@ -20,9 +24,19 @@ function createSlug(
     .toLowerCase()
     .trim()
     .replace(/['"]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(
+      /[^a-z0-9]+/g,
+      "-"
+    )
+    .replace(
+      /^-|-$/g,
+      ""
+    );
 }
+
+/* =====================================
+   CREATE PROJECT
+===================================== */
 
 export async function POST(
   request: Request
@@ -34,7 +48,7 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          "Unauthorized",
+          "You are not authorized to perform this action.",
       },
       {
         status: 401,
@@ -45,6 +59,10 @@ export async function POST(
   try {
     const body =
       await request.json();
+
+    /* =====================================
+       VALIDATE
+    ===================================== */
 
     const result =
       projectSchema.safeParse(
@@ -73,6 +91,11 @@ export async function POST(
         }
       }
 
+      console.error(
+        "PROJECT VALIDATION FAILED:",
+        result.error.issues
+      );
+
       return NextResponse.json(
         {
           error:
@@ -90,6 +113,10 @@ export async function POST(
     const data =
       result.data;
 
+    /* =====================================
+       CREATE UNIQUE SLUG
+    ===================================== */
+
     const baseSlug =
       createSlug(
         data.title
@@ -98,12 +125,17 @@ export async function POST(
     let slug =
       baseSlug;
 
-    let counter = 2;
+    let counter =
+      2;
 
     while (
       await prisma.project.findUnique({
         where: {
           slug,
+        },
+
+        select: {
+          id: true,
         },
       })
     ) {
@@ -112,6 +144,72 @@ export async function POST(
 
       counter++;
     }
+
+    /* =====================================
+       CALCULATE ORDER
+    ===================================== */
+
+    let sortOrder =
+      0;
+
+    if (
+      data.placement ===
+      "top"
+    ) {
+      const firstProject =
+        await prisma.project.findFirst({
+          where: {
+            category:
+              data.category,
+          },
+
+          orderBy: {
+            sortOrder:
+              "asc",
+          },
+
+          select: {
+            sortOrder:
+              true,
+          },
+        });
+
+      sortOrder =
+        firstProject ===
+        null
+          ? 0
+          : firstProject.sortOrder -
+            1;
+    } else {
+      const lastProject =
+        await prisma.project.findFirst({
+          where: {
+            category:
+              data.category,
+          },
+
+          orderBy: {
+            sortOrder:
+              "desc",
+          },
+
+          select: {
+            sortOrder:
+              true,
+          },
+        });
+
+      sortOrder =
+        lastProject ===
+        null
+          ? 0
+          : lastProject.sortOrder +
+            1;
+    }
+
+    /* =====================================
+       CREATE PROJECT
+    ===================================== */
 
     const project =
       await prisma.project.create({
@@ -125,13 +223,22 @@ export async function POST(
             data.category,
 
           year:
-            data.year || null,
+            data.year ||
+            null,
 
           description:
             data.description,
 
           coverImage:
             data.coverImage ||
+            null,
+
+          previewVideo:
+            data.previewVideo ||
+            null,
+
+          videoPoster:
+            data.videoPoster ||
             null,
 
           oneSheets:
@@ -146,18 +253,25 @@ export async function POST(
           gallery:
             data.gallery,
 
-          sortOrder:
-            data.sortOrder,
+          sortOrder,
 
           published:
             data.published,
         },
       });
 
-    revalidatePath("/");
+    /* =====================================
+       REVALIDATE
+    ===================================== */
+
+    revalidatePath(
+      "/"
+    );
+
     revalidatePath(
       "/admin"
     );
+
     revalidatePath(
       "/admin/projects"
     );
@@ -174,6 +288,11 @@ export async function POST(
       error
     );
 
+    const details =
+      error instanceof Error
+        ? error.message
+        : "Unknown server error";
+
     return NextResponse.json(
       {
         error:
@@ -181,9 +300,8 @@ export async function POST(
 
         details:
           process.env.NODE_ENV ===
-            "development" &&
-          error instanceof Error
-            ? error.message
+          "development"
+            ? details
             : undefined,
       },
       {
