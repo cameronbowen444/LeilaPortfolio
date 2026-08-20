@@ -76,6 +76,14 @@ export default async function EditProjectPage({
                 project.coverImage ??
                 "",
 
+              previewVideo:
+                project.previewVideo ??
+                "",
+
+              videoPoster:
+                project.videoPoster ??
+                "",
+
               oneSheets:
                 project.oneSheets,
 
