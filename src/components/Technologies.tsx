@@ -1,12 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
-import {
-  SiFigma,
-  SiBlender,
-  SiCinema4D,
-} from "react-icons/si";
-
+import { motion, useReducedMotion } from "motion/react";
 type Tool = {
   name: string;
   short: string;
@@ -15,6 +9,20 @@ type Tool = {
   accent: string;
   glow: string;
 };
+
+const filmPerforations = Array.from({
+  length: 7,
+});
+
+const timelineFrames = [
+  "00",
+  "04",
+  "08",
+  "12",
+  "16",
+  "20",
+  "24",
+];
 
 const tools: Tool[] = [
   {
@@ -52,30 +60,12 @@ const tools: Tool[] = [
     accent: "#9999FF",
     glow: "rgba(153,153,255,0.22)",
   },
-  {
-    name: "Figma",
-    short: "UI Design • Collaboration",
-    icon: SiFigma,
-    accent: "#F24E1E",
-    glow: "rgba(242,78,30,0.22)",
-  },
-  {
-    name: "Blender",
-    short: "3D Design • Rendering",
-    icon: SiBlender,
-    accent: "#E87D0D",
-    glow: "rgba(232,125,13,0.22)",
-  },
-  {
-    name: "Cinema 4D",
-    short: "3D Motion • Rendering",
-    icon: SiCinema4D,
-    accent: "#5E9F99",
-    glow: "rgba(94,159,153,0.22)",
-  },
+  
 ];
 
 export default function Technologies() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section
       id="technologies"
@@ -119,10 +109,14 @@ export default function Technologies() {
           </div>
 
           <motion.h2
-            initial={{
-              opacity: 0,
-              y: 18,
-            }}
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                    y: 18,
+                  }
+            }
             whileInView={{
               opacity: 1,
               y: 0,
@@ -131,7 +125,7 @@ export default function Technologies() {
               once: true,
             }}
             transition={{
-              duration: 0.55,
+              duration: prefersReducedMotion ? 0 : 0.55,
             }}
             className="font-serif text-4xl sm:text-5xl lg:text-6xl"
           >
@@ -143,9 +137,13 @@ export default function Technologies() {
           </motion.h2>
 
           <motion.p
-            initial={{
-              opacity: 0,
-            }}
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                  }
+            }
             whileInView={{
               opacity: 1,
             }}
@@ -153,8 +151,8 @@ export default function Technologies() {
               once: true,
             }}
             transition={{
-              duration: 0.55,
-              delay: 0.1,
+              duration: prefersReducedMotion ? 0 : 0.55,
+              delay: prefersReducedMotion ? 0 : 0.1,
             }}
             className="mx-auto mt-4 max-w-[560px] text-sm leading-7 text-[#F4EFE6]/45"
           >
@@ -194,9 +192,7 @@ export default function Technologies() {
               {/* faint vertical film perforations */}
 
               <div className="absolute bottom-20 left-3 top-20 hidden flex-col justify-around opacity-[0.05] lg:flex">
-                {Array.from({
-                  length: 7,
-                }).map((_, index) => (
+                {filmPerforations.map((_, index) => (
                   <span
                     key={index}
                     className="h-5 w-2 rounded-[2px] border border-[#D4AF37]"
@@ -205,9 +201,7 @@ export default function Technologies() {
               </div>
 
               <div className="absolute bottom-20 right-3 top-20 hidden flex-col justify-around opacity-[0.05] lg:flex">
-                {Array.from({
-                  length: 7,
-                }).map((_, index) => (
+                {filmPerforations.map((_, index) => (
                   <span
                     key={index}
                     className="h-5 w-2 rounded-[2px] border border-[#D4AF37]"
@@ -251,15 +245,7 @@ export default function Technologies() {
 
               <div className="mb-8 hidden sm:block">
                 <div className="flex items-end justify-between">
-                  {[
-                    "00",
-                    "04",
-                    "08",
-                    "12",
-                    "16",
-                    "20",
-                    "24",
-                  ].map(
+                  {timelineFrames.map(
                     (
                       frame,
                       index
@@ -287,9 +273,13 @@ export default function Technologies() {
 
                 <div className="relative h-px bg-[#F4EFE6]/5">
                   <motion.div
-                    initial={{
-                      width: "0%",
-                    }}
+                    initial={
+                      prefersReducedMotion
+                        ? false
+                        : {
+                            width: "0%",
+                          }
+                    }
                     whileInView={{
                       width: "37%",
                     }}
@@ -297,8 +287,8 @@ export default function Technologies() {
                       once: true,
                     }}
                     transition={{
-                      duration: 1.1,
-                      delay: 0.2,
+                      duration: prefersReducedMotion ? 0 : 1.1,
+                      delay: prefersReducedMotion ? 0 : 0.2,
                     }}
                     className="absolute left-0 top-0 h-px bg-[#7E2A5A]/45"
                   />
@@ -325,10 +315,14 @@ export default function Technologies() {
                         key={
                           tool.name
                         }
-                        initial={{
-                          opacity: 0,
-                          y: 18,
-                        }}
+                        initial={
+                          prefersReducedMotion
+                            ? false
+                            : {
+                                opacity: 0,
+                                y: 18,
+                              }
+                        }
                         whileInView={{
                           opacity: 1,
                           y: 0,
@@ -339,16 +333,24 @@ export default function Technologies() {
                         }}
                         transition={{
                           duration:
-                            0.45,
+                            prefersReducedMotion
+                              ? 0
+                              : 0.45,
                           delay:
-                            index *
-                            0.04,
+                            prefersReducedMotion
+                              ? 0
+                              : index *
+                                0.04,
                         }}
-                        whileHover={{
-                          y: -7,
-                          scale:
-                            1.025,
-                        }}
+                        whileHover={
+                          prefersReducedMotion
+                            ? undefined
+                            : {
+                                y: -7,
+                                scale:
+                                  1.025,
+                              }
+                        }
                         className="group relative"
                       >
                         {/* colored hover glow */}

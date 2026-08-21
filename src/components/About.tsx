@@ -1,18 +1,35 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView } from "motion/react";
+import {
+  useRef,
+  useState,
+} from "react";
+
+import {
+  motion,
+  useInView,
+} from "motion/react";
+
 import JourneyAnimation from "@/components/JourneyAnimation";
 
 export default function About() {
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const sectionRef =
+    useRef<HTMLElement | null>(
+      null
+    );
 
-  const isInView = useInView(sectionRef, {
-    once: true,
-    amount: 0.22,
-  });
+  const isInView = useInView(
+    sectionRef,
+    {
+      once: true,
+      amount: 0.22,
+    }
+  );
 
-  const [showStory, setShowStory] = useState(false);
+  const [
+    showStory,
+    setShowStory,
+  ] = useState(false);
 
   return (
     <section
@@ -104,7 +121,12 @@ export default function About() {
             transition={{
               duration: 0.8,
               delay: 0.1,
-              ease: [0.22, 1, 0.36, 1],
+              ease: [
+                0.22,
+                1,
+                0.36,
+                1,
+              ],
             }}
             className="relative overflow-hidden border border-[#D4AF37]/25 bg-[#10100F] shadow-[0_35px_120px_rgba(0,0,0,0.58)]"
           >
@@ -182,7 +204,7 @@ export default function About() {
                 CONTENT VIEWPORT
             ===================================== */}
 
-            <div className="relative h-[680px] sm:h-[650px] md:h-[580px] lg:h-[610px]">
+            <div className="relative h-[760px] sm:h-[730px] md:h-[620px] lg:h-[650px]">
               {/* =====================================
                   JOURNEY ANIMATION
               ===================================== */}
@@ -190,7 +212,9 @@ export default function About() {
               {!showStory && (
                 <JourneyAnimation
                   onComplete={() => {
-                    setShowStory(true);
+                    setShowStory(
+                      true
+                    );
                   }}
                 />
               )}
@@ -199,32 +223,27 @@ export default function About() {
                   STORY REVEAL
               ===================================== */}
 
-              <motion.div
-                initial={{
-                  opacity: 0,
-                  scale: 0.985,
-                }}
-                animate={
-                  showStory
-                    ? {
-                        opacity: 1,
-                        scale: 1,
-                      }
-                    : {
-                        opacity: 0,
-                        scale: 0.985,
-                      }
-                }
-                transition={{
-                  duration: 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={`absolute inset-0 ${
-                  showStory
-                    ? "pointer-events-auto"
-                    : "pointer-events-none"
-                }`}
-              >
+              {showStory && (
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    scale: 0.985,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                  }}
+                  transition={{
+                    duration: 0.9,
+                    ease: [
+                      0.22,
+                      1,
+                      0.36,
+                      1,
+                    ],
+                  }}
+                  className="absolute inset-0 pointer-events-auto"
+                >
                 {/* =====================================
                     STORY BACKGROUND
                 ===================================== */}
@@ -237,9 +256,9 @@ export default function About() {
 
                 <div className="absolute left-[42%] top-1/2 h-[300px] w-[480px] -translate-y-1/2 rounded-full bg-[#D4AF37]/[0.025] blur-[120px]" />
 
-                {/* production lines */}
+                {/* production line */}
 
-                <div className="pointer-events-none absolute left-[32%] top-[12%] hidden h-[76%] w-px bg-gradient-to-b from-transparent via-[#D4AF37]/10 to-transparent md:block" />
+                <div className="pointer-events-none absolute left-[38%] top-[12%] hidden h-[76%] w-px bg-gradient-to-b from-transparent via-[#D4AF37]/10 to-transparent md:block" />
 
                 {/* subtle texture */}
 
@@ -249,10 +268,10 @@ export default function About() {
                     STORY CONTENT
                 ===================================== */}
 
-                <div className="relative z-10 flex h-full items-start px-6 pb-10 pt-11 sm:px-9 sm:pb-10 sm:pt-12 md:items-center md:px-14 md:py-12 lg:px-20 xl:px-24">
-                  <div className="grid w-full gap-9 md:grid-cols-[0.85fr_1.15fr] md:items-center md:gap-16 lg:gap-24">
+                <div className="relative z-10 flex h-full items-start px-6 pb-10 pt-9 sm:px-9 sm:pb-10 sm:pt-10 md:items-center md:px-14 md:py-10 lg:px-20 xl:px-24">
+                  <div className="grid w-full gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-center md:gap-14 lg:gap-20">
                     {/* =====================================
-                        LEFT
+                        LEFT — PERSONAL WORK
                     ===================================== */}
 
                     <motion.div
@@ -269,24 +288,28 @@ export default function About() {
                           : {}
                       }
                       transition={{
-                        duration: 0.75,
-                        delay: 0.12,
+                        duration:
+                          0.75,
+                        delay:
+                          0.12,
                       }}
                       className="text-center md:text-left"
                     >
                       <p className="mb-4 text-[8px] uppercase tracking-[0.42em] text-[#D4AF37] sm:mb-5 sm:text-[9px] sm:tracking-[0.48em]">
-                        Her Story
+                        Personal Work
                       </p>
 
-                      <h3 className="font-serif text-[40px] leading-[0.95] sm:text-[48px] md:text-[58px] lg:text-[66px] xl:text-[72px]">
-                        Design shaped
-                        <span className="block">
-                          by{" "}
-                          <span className="italic text-[#8A345F]">
-                            two worlds.
-                          </span>
-                        </span>
-                      </h3>
+                      <div className="relative mx-auto w-full max-w-[330px] overflow-hidden border border-[#D4AF37]/20 bg-[#0D0D0D] p-2 shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:max-w-[360px] md:mx-0">
+                        <img
+                          src="/images/bio.jpg"
+                          alt="Personal design work by Leila Mirfakhraei"
+                          className="max-h-[390px] w-full object-contain md:max-h-[430px]"
+                        />
+
+                        <div className="pointer-events-none absolute inset-2 border border-[#F4EFE6]/[0.06]" />
+
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#5B1E3A]/10 via-transparent to-transparent" />
+                      </div>
 
                       <motion.div
                         initial={{
@@ -295,15 +318,18 @@ export default function About() {
                         animate={
                           showStory
                             ? {
-                                width: "100px",
+                                width:
+                                  "100px",
                               }
                             : {}
                         }
                         transition={{
-                          duration: 0.75,
-                          delay: 0.38,
+                          duration:
+                            0.75,
+                          delay:
+                            0.38,
                         }}
-                        className="mx-auto mt-6 h-px bg-gradient-to-r from-[#D4AF37] to-[#D4AF37]/15 sm:mt-8 md:mx-0"
+                        className="mx-auto mt-6 h-px bg-gradient-to-r from-[#D4AF37] to-[#D4AF37]/15 md:mx-0"
                       />
 
                       <motion.div
@@ -313,15 +339,18 @@ export default function About() {
                         animate={
                           showStory
                             ? {
-                                opacity: 1,
+                                opacity:
+                                  1,
                               }
                             : {}
                         }
                         transition={{
-                          duration: 0.6,
-                          delay: 0.5,
+                          duration:
+                            0.6,
+                          delay:
+                            0.5,
                         }}
-                        className="mt-4 flex items-center justify-center gap-3 sm:mt-5 md:justify-start"
+                        className="mt-4 flex items-center justify-center gap-3 md:justify-start"
                       >
                         <span className="h-[5px] w-[5px] rotate-45 bg-[#7E2A5A]" />
 
@@ -332,7 +361,7 @@ export default function About() {
                     </motion.div>
 
                     {/* =====================================
-                        RIGHT
+                        RIGHT — BIO
                     ===================================== */}
 
                     <div className="text-center md:text-left">
@@ -344,18 +373,21 @@ export default function About() {
                         animate={
                           showStory
                             ? {
-                                opacity: 1,
+                                opacity:
+                                  1,
                                 y: 0,
                               }
                             : {}
                         }
                         transition={{
-                          duration: 0.7,
-                          delay: 0.26,
+                          duration:
+                            0.7,
+                          delay:
+                            0.26,
                         }}
                         className="font-serif text-[16px] leading-[1.7] text-[#F4EFE6]/78 sm:text-[18px] sm:leading-[1.72] md:text-[21px] md:leading-[1.75]"
                       >
-                        Born in Iran and later beginning a new chapter
+                        Born in Iran and beginning a new chapter
                         in the United States, Leila&apos;s perspective
                         was shaped by movement, culture, curiosity,
                         and the experience of seeing the world through
@@ -369,13 +401,16 @@ export default function About() {
                         animate={
                           showStory
                             ? {
-                                scaleX: 1,
+                                scaleX:
+                                  1,
                               }
                             : {}
                         }
                         transition={{
-                          duration: 0.8,
-                          delay: 0.44,
+                          duration:
+                            0.8,
+                          delay:
+                            0.44,
                         }}
                         className="my-5 h-px origin-center bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent sm:my-6 md:my-7 md:origin-left md:bg-gradient-to-r md:from-[#D4AF37]/35 md:via-[#7E2A5A]/25 md:to-transparent"
                       />
@@ -388,14 +423,17 @@ export default function About() {
                         animate={
                           showStory
                             ? {
-                                opacity: 1,
+                                opacity:
+                                  1,
                                 y: 0,
                               }
                             : {}
                         }
                         transition={{
-                          duration: 0.7,
-                          delay: 0.56,
+                          duration:
+                            0.7,
+                          delay:
+                            0.56,
                         }}
                         className="text-[14px] leading-7 text-[#F4EFE6]/52 sm:text-[15px] sm:leading-8 md:text-[17px] md:leading-9"
                       >
@@ -417,14 +455,17 @@ export default function About() {
                         animate={
                           showStory
                             ? {
-                                opacity: 1,
+                                opacity:
+                                  1,
                                 y: 0,
                               }
                             : {}
                         }
                         transition={{
-                          duration: 0.65,
-                          delay: 0.72,
+                          duration:
+                            0.65,
+                          delay:
+                            0.72,
                         }}
                         className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[#F4EFE6]/[0.06] pt-5 sm:mt-7 sm:grid-cols-3 sm:pt-6 md:mt-8"
                       >
@@ -462,6 +503,7 @@ export default function About() {
                   </div>
                 </div>
               </motion.div>
+              )}
             </div>
 
             {/* =====================================

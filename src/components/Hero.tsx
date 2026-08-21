@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 import { FiArrowDownRight } from "react-icons/fi";
 
 const titles = ["Graphic Designer", "Key Art Designer", "Visual Storyteller"];
@@ -22,39 +22,82 @@ const filmImages = [
 ];
 
 export default function Hero() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  const isInView = useInView(sectionRef, {
+    amount: 0.08,
+  });
+
+  const prefersReducedMotion = useReducedMotion();
+
   const [titleIndex, setTitleIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setDisplayedText(titles[0]);
+      setDeleting(false);
+      setTitleIndex(0);
+      return;
+    }
+
+    if (!isInView) {
+      return;
+    }
+
     const currentTitle = titles[titleIndex];
 
-    const timeout = setTimeout(
+    const timeout = window.setTimeout(
       () => {
         if (!deleting) {
           if (displayedText.length < currentTitle.length) {
-            setDisplayedText(currentTitle.slice(0, displayedText.length + 1));
+            setDisplayedText(
+              currentTitle.slice(
+                0,
+                displayedText.length + 1
+              )
+            );
           } else {
             setDeleting(true);
           }
+        } else if (displayedText.length > 0) {
+          setDisplayedText(
+            currentTitle.slice(
+              0,
+              displayedText.length - 1
+            )
+          );
         } else {
-          if (displayedText.length > 0) {
-            setDisplayedText(currentTitle.slice(0, displayedText.length - 1));
-          } else {
-            setDeleting(false);
+          setDeleting(false);
 
-            setTitleIndex((previous) => (previous + 1) % titles.length);
-          }
+          setTitleIndex(
+            (previous) =>
+              (previous + 1) % titles.length
+          );
         }
       },
-      deleting ? 40 : displayedText.length === currentTitle.length ? 1200 : 75,
+      deleting
+        ? 40
+        : displayedText.length === currentTitle.length
+          ? 1200
+          : 75
     );
 
-    return () => clearTimeout(timeout);
-  }, [displayedText, deleting, titleIndex]);
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [
+    displayedText,
+    deleting,
+    titleIndex,
+    isInView,
+    prefersReducedMotion,
+  ]);
 
   return (
     <section
+      ref={sectionRef}
       id="home"
       className="relative min-h-screen overflow-hidden bg-[#121212] pt-24 text-[#F4EFE6]"
     >
@@ -126,11 +169,11 @@ export default function Hero() {
               duration: 0.65,
               delay: 0.08,
             }}
-            className="font-serif text-[54px] leading-[0.9] sm:text-[64px] md:text-[72px] lg:text-[74px] xl:text-[82px]"
+            className="font-serif text-[54px] leading-[0.9] sm:text-[64px] md:text-[72px] lg:text-[74px] xl:text-[82px] "
           >
-            Designing for
+            Imagination, Concept,
             <span className="mt-1 block italic text-[#F4EFE6]">
-              the big screen.
+              Design, Creation.
             </span>
           </motion.h1>
 
@@ -247,12 +290,21 @@ export default function Hero() {
             {/* MOVING FILM */}
 
             <motion.div
-              animate={{
-                y: ["0%", "-50%"],
-              }}
+              animate={
+                isInView && !prefersReducedMotion
+                  ? {
+                      y: ["0%", "-50%"],
+                    }
+                  : {
+                      y: "0%",
+                    }
+              }
               transition={{
                 duration: 30,
-                repeat: Infinity,
+                repeat:
+                  isInView && !prefersReducedMotion
+                    ? Infinity
+                    : 0,
                 ease: "linear",
               }}
               className="absolute left-1/2 top-0 w-full -translate-x-1/2"
@@ -295,12 +347,21 @@ export default function Hero() {
             {/* MOVING HORIZONTAL FILM */}
 
             <motion.div
-              animate={{
-                x: ["0%", "-50%"],
-              }}
+              animate={
+                isInView && !prefersReducedMotion
+                  ? {
+                      x: ["0%", "-50%"],
+                    }
+                  : {
+                      x: "0%",
+                    }
+              }
               transition={{
                 duration: 26,
-                repeat: Infinity,
+                repeat:
+                  isInView && !prefersReducedMotion
+                    ? Infinity
+                    : 0,
                 ease: "linear",
               }}
               className="absolute left-0 top-1/2 flex -translate-y-1/2"

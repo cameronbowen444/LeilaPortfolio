@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -22,31 +22,12 @@ export default function Navbar() {
   const [activeSection, setActiveSection] =
     useState<string | null>(null);
 
-  /* =====================================
-     SCROLL STATE
-  ===================================== */
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 35);
-    };
-
-    handleScroll();
-
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    });
-
-    return () => {
-      window.removeEventListener(
-        "scroll",
-        handleScroll
-      );
-    };
-  }, []);
+  const scrollFrameRef =
+    useRef<number | null>(null);
 
   /* =====================================
-     ACTIVE SECTION
+     SCROLL + ACTIVE SECTION STATE
+     Same behavior, one throttled listener.
   ===================================== */
 
   useEffect(() => {
@@ -58,7 +39,11 @@ export default function Navbar() {
       "contact",
     ];
 
-    const updateActiveSection = () => {
+    const updateNavigationState = () => {
+      scrollFrameRef.current = null;
+
+      setScrolled(window.scrollY > 35);
+
       const scrollPosition =
         window.scrollY +
         Math.min(
@@ -85,8 +70,7 @@ export default function Navbar() {
           scrollPosition >=
           sectionTop
         ) {
-          currentSection =
-            id;
+          currentSection = id;
         }
       }
 
@@ -104,8 +88,7 @@ export default function Navbar() {
         scrollPosition <
           aboutSection.offsetTop
       ) {
-        currentSection =
-          null;
+        currentSection = null;
       }
 
       setActiveSection(
@@ -113,11 +96,25 @@ export default function Navbar() {
       );
     };
 
-    updateActiveSection();
+    const requestUpdate = () => {
+      if (
+        scrollFrameRef.current !==
+        null
+      ) {
+        return;
+      }
+
+      scrollFrameRef.current =
+        window.requestAnimationFrame(
+          updateNavigationState
+        );
+    };
+
+    updateNavigationState();
 
     window.addEventListener(
       "scroll",
-      updateActiveSection,
+      requestUpdate,
       {
         passive: true,
       }
@@ -125,19 +122,31 @@ export default function Navbar() {
 
     window.addEventListener(
       "resize",
-      updateActiveSection
+      requestUpdate
     );
 
     return () => {
       window.removeEventListener(
         "scroll",
-        updateActiveSection
+        requestUpdate
       );
 
       window.removeEventListener(
         "resize",
-        updateActiveSection
+        requestUpdate
       );
+
+      if (
+        scrollFrameRef.current !==
+        null
+      ) {
+        window.cancelAnimationFrame(
+          scrollFrameRef.current
+        );
+
+        scrollFrameRef.current =
+          null;
+      }
     };
   }, []);
 
@@ -146,14 +155,19 @@ export default function Navbar() {
   ===================================== */
 
   useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    if (!menuOpen) {
+      return;
     }
 
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        previousOverflow;
     };
   }, [menuOpen]);
 

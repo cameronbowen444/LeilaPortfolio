@@ -2,10 +2,12 @@
 
 import {
   FormEvent,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 
-import { motion } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 
 import {
   FiAlertCircle,
@@ -46,6 +48,26 @@ function seededRandom(seed: number) {
 
   return x - Math.floor(x);
 }
+
+const marqueeBulbs = Array.from({
+  length: 14,
+});
+
+const poppingKernels = Array.from({
+  length: 6,
+});
+
+const kernelMarks = Array.from({
+  length: 30,
+});
+
+const frontMoundPieces = Array.from({
+  length: 18,
+});
+
+const backMoundPieces = Array.from({
+  length: 13,
+});
 
 const fallingKernels: Kernel[] =
   Array.from({
@@ -105,6 +127,26 @@ const fallingKernels: Kernel[] =
 ===================================== */
 
 export default function Contact() {
+  const sectionRef =
+    useRef<HTMLElement | null>(
+      null
+    );
+
+  const successTimerRef =
+    useRef<number | null>(
+      null
+    );
+
+  const isInView = useInView(
+    sectionRef,
+    {
+      amount: 0.05,
+    }
+  );
+
+  const prefersReducedMotion =
+    useReducedMotion();
+
   const [name, setName] =
     useState("");
 
@@ -361,9 +403,21 @@ export default function Contact() {
       setWebsite("");
       setErrors({});
 
-      setTimeout(() => {
-        setSent(false);
-      }, 6000);
+      if (
+        successTimerRef.current !==
+        null
+      ) {
+        window.clearTimeout(
+          successTimerRef.current
+        );
+      }
+
+      successTimerRef.current =
+        window.setTimeout(() => {
+          setSent(false);
+          successTimerRef.current =
+            null;
+        }, 6000);
     } catch (error) {
       console.error(
         "CONTACT FORM ERROR:",
@@ -379,8 +433,22 @@ export default function Contact() {
     }
   }
 
+  useEffect(() => {
+    return () => {
+      if (
+        successTimerRef.current !==
+        null
+      ) {
+        window.clearTimeout(
+          successTimerRef.current
+        );
+      }
+    };
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       id="contact"
       className="relative overflow-hidden bg-[#0f0f0f] px-5 py-20 text-[#F4EFE6] sm:px-7 md:px-10 lg:px-12 lg:py-28"
     >
@@ -415,10 +483,14 @@ export default function Contact() {
           </div>
 
           <motion.h2
-            initial={{
-              opacity: 0,
-              y: 18,
-            }}
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                    y: 18,
+                  }
+            }
             whileInView={{
               opacity: 1,
               y: 0,
@@ -427,7 +499,10 @@ export default function Contact() {
               once: true,
             }}
             transition={{
-              duration: 0.6,
+              duration:
+                prefersReducedMotion
+                  ? 0
+                  : 0.6,
             }}
             className="font-serif text-4xl sm:text-5xl lg:text-6xl"
           >
@@ -454,10 +529,14 @@ export default function Contact() {
 
         <div className="relative mx-auto max-w-[860px]">
           <motion.div
-            initial={{
-              opacity: 0,
-              y: 30,
-            }}
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                    y: 30,
+                  }
+            }
             whileInView={{
               opacity: 1,
               y: 0,
@@ -467,7 +546,10 @@ export default function Contact() {
               amount: 0.15,
             }}
             transition={{
-              duration: 0.8,
+              duration:
+                prefersReducedMotion
+                  ? 0
+                  : 0.8,
             }}
             className="relative"
           >
@@ -479,31 +561,40 @@ export default function Contact() {
               {/* MARQUEE BULBS */}
 
               <div className="absolute left-5 right-5 top-2 flex justify-between">
-                {Array.from({
-                  length: 14,
-                }).map(
+                {marqueeBulbs.map(
                   (_, index) => (
                     <motion.span
                       key={index}
-                      animate={{
-                        opacity: [
-                          0.5,
-                          1,
-                          0.5,
-                        ],
+                      animate={
+                        isInView &&
+                        !prefersReducedMotion
+                          ? {
+                              opacity: [
+                                0.5,
+                                1,
+                                0.5,
+                              ],
 
-                        scale: [
-                          0.9,
-                          1.1,
-                          0.9,
-                        ],
-                      }}
+                              scale: [
+                                0.9,
+                                1.1,
+                                0.9,
+                              ],
+                            }
+                          : {
+                              opacity: 1,
+                              scale: 1,
+                            }
+                      }
                       transition={{
                         duration:
                           1.8,
 
                         repeat:
-                          Infinity,
+                          isInView &&
+                          !prefersReducedMotion
+                            ? Infinity
+                            : 0,
 
                         delay:
                           index *
@@ -573,57 +664,65 @@ export default function Contact() {
 
                   {/* POPPING POPCORN */}
 
-                  {Array.from({
-                    length: 6,
-                  }).map(
+                  {poppingKernels.map(
                     (_, index) => (
                       <motion.div
                         key={
                           index
                         }
-                        animate={{
-                          x: [
-                            0,
+                        animate={
+                          isInView &&
+                          !prefersReducedMotion
+                            ? {
+                                x: [
+                                  0,
 
-                            index %
-                              2 ===
-                            0
-                              ? -18 -
-                                index *
-                                  2
-                              : 18 +
-                                index *
-                                  2,
+                                  index %
+                                    2 ===
+                                  0
+                                    ? -18 -
+                                      index *
+                                        2
+                                    : 18 +
+                                      index *
+                                        2,
 
-                            0,
-                          ],
+                                  0,
+                                ],
 
-                          y: [
-                            0,
+                                y: [
+                                  0,
 
-                            -22 -
-                              index *
-                                6,
+                                  -22 -
+                                    index *
+                                      6,
 
-                            4,
-                          ],
+                                  4,
+                                ],
 
-                          rotate: [
-                            0,
+                                rotate: [
+                                  0,
 
-                            index *
-                              45,
+                                  index *
+                                    45,
 
-                            index *
-                              90,
-                          ],
+                                  index *
+                                    90,
+                                ],
 
-                          opacity: [
-                            0.5,
-                            1,
-                            0.4,
-                          ],
-                        }}
+                                opacity: [
+                                  0.5,
+                                  1,
+                                  0.4,
+                                ],
+                              }
+                            : {
+                                x: 0,
+                                y: 0,
+                                rotate: 0,
+                                opacity: 1,
+                              }
+                        }
                         transition={{
                           duration:
                             1.4 +
@@ -631,7 +730,10 @@ export default function Contact() {
                               0.08,
 
                           repeat:
-                            Infinity,
+                            isInView &&
+                            !prefersReducedMotion
+                              ? Infinity
+                              : 0,
 
                           delay:
                             index *
@@ -675,45 +777,58 @@ export default function Contact() {
                           rotate:
                             0,
                         }}
-                        animate={{
-                          x: [
-                            0,
+                        animate={
+                          isInView &&
+                          !prefersReducedMotion
+                            ? {
+                                x: [
+                                  0,
 
-                            kernel.drift,
+                                  kernel.drift,
 
-                            kernel.drift *
-                              0.35,
-                          ],
+                                  kernel.drift *
+                                    0.35,
+                                ],
 
-                          y: [
-                            0,
-                            150,
-                            360,
-                            520,
-                          ],
+                                y: [
+                                  0,
+                                  150,
+                                  360,
+                                  520,
+                                ],
 
-                          rotate: [
-                            0,
+                                rotate: [
+                                  0,
 
-                            kernel.rotate *
-                              0.4,
+                                  kernel.rotate *
+                                    0.4,
 
-                            kernel.rotate,
-                          ],
+                                  kernel.rotate,
+                                ],
 
-                          opacity: [
-                            0,
-                            1,
-                            1,
-                            0.15,
-                          ],
-                        }}
+                                opacity: [
+                                  0,
+                                  1,
+                                  1,
+                                  0.15,
+                                ],
+                              }
+                            : {
+                                x: 0,
+                                y: 0,
+                                rotate: 0,
+                                opacity: 0,
+                              }
+                        }
                         transition={{
                           duration:
                             kernel.duration,
 
                           repeat:
-                            Infinity,
+                            isInView &&
+                            !prefersReducedMotion
+                              ? Infinity
+                              : 0,
 
                           delay:
                             kernel.delay,
@@ -1088,9 +1203,7 @@ export default function Contact() {
 
                     {/* KERNEL MARKS */}
 
-                    {Array.from({
-                      length: 30,
-                    }).map(
+                    {kernelMarks.map(
                       (
                         _,
                         index
@@ -1130,9 +1243,7 @@ export default function Contact() {
                   {/* FRONT SCALLOPED MOUND */}
 
                   <div className="absolute bottom-[112px] left-0 flex w-full items-end">
-                    {Array.from({
-                      length: 18,
-                    }).map(
+                    {frontMoundPieces.map(
                       (
                         _,
                         index
@@ -1192,9 +1303,7 @@ export default function Contact() {
                   {/* BACK MOUND */}
 
                   <div className="absolute bottom-[100px] left-[4%] flex w-[92%] items-end opacity-90">
-                    {Array.from({
-                      length: 13,
-                    }).map(
+                    {backMoundPieces.map(
                       (
                         _,
                         index
